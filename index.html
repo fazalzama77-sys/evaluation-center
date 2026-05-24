@@ -6,6 +6,7 @@
     <title>Daily Self-Evaluation Tracker</title>
     <!-- jsPDF for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -192,7 +193,7 @@
 <body>
 <div class="container">
     <h1>📊 Daily Self-Evaluation</h1>
-    <div class="subtitle">Rate your timeframes (1–10) · Credits: Pre‑College 8 | College 10 | Post‑College 7</div>
+    <div class="subtitle">Rate your timeframes (0–10) · Credits: Pre‑College 8 | College 10 | Post‑College 7</div>
 
     <!-- Date picker -->
     <div class="date-picker">
@@ -225,9 +226,9 @@
             <thead>
             <tr>
                 <th>Date</th>
-                <th>Pre<br>(1-10)</th>
-                <th>College<br>(1-10)</th>
-                <th>Post<br>(1-10)</th>
+                <th>Pre<br>(0-10)</th>
+                <th>College<br>(0-10)</th>
+                <th>Post<br>(0-10)</th>
                 <th>Pre Credits</th>
                 <th>College Credits</th>
                 <th>Post Credits</th>
@@ -299,7 +300,7 @@
                     <div class="frame-label">${frame.label}</div>
                     <div class="frame-credits">max ${frame.maxCredits} credits</div>
                     <div class="score-input">
-                        <input type="range" min="1" max="10" value="${currentScores[frame.id]}" data-frame="${frame.id}">
+                        <input type="range" min="0" max="10" value="${currentScores[frame.id]}" data-frame="${frame.id}">
                         <span>${currentScores[frame.id]}</span>
                     </div>
                     <div class="earned-credit" id="credit-${frame.id}">
@@ -467,6 +468,10 @@
                 alert('No data to export.');
                 return;
             }
+            if (!window.jspdf || typeof window.jspdf.jsPDF !== 'function') {
+                alert('PDF library failed to load. Please refresh and try again.');
+                return;
+            }
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.setFontSize(16);
@@ -482,6 +487,11 @@
                 const total = (parseFloat(preC) + parseFloat(colC) + parseFloat(postC)).toFixed(1);
                 return [entry.date, entry.pre, entry.college, entry.post, preC, colC, postC, total];
             });
+
+            if (typeof doc.autoTable !== 'function') {
+                alert('PDF table plugin failed to load. Please refresh and try again.');
+                return;
+            }
 
             doc.autoTable({
                 head: headers,
