@@ -104,6 +104,7 @@
         { id: 'post', label: 'Post-College', maxCredits: 7 }
     ];
     const STORAGE_KEY = 'selfEvalData.v2';
+    const LEGACY_STORAGE_KEY = 'selfEvalData';
 
     const el = {
         dateInput: document.getElementById('evalDate'),
@@ -143,8 +144,18 @@
         },
         saveAll(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); },
         loadAll() {
-            try { return this.parse(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); }
-            catch { return []; }
+            try {
+                const currentRaw = localStorage.getItem(STORAGE_KEY);
+                const parsedCurrent = this.parse(JSON.parse(currentRaw || '[]'));
+                if (parsedCurrent.length > 0) return parsedCurrent;
+
+                const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+                if (!legacyRaw) return parsedCurrent;
+
+                const parsedLegacy = this.parse(JSON.parse(legacyRaw || '[]'));
+                if (parsedLegacy.length > 0) this.saveAll(parsedLegacy);
+                return parsedLegacy;
+            } catch { return []; }
         },
         upsert(data, entry) {
             const idx = data.findIndex(d => d.date === entry.date);
