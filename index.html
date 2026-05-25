@@ -59,7 +59,7 @@
 <div class="container">
     <section class="hero">
         <h1>📊 Daily Self-Evaluation Dashboard</h1>
-        <p>Track performance by timeframe, review trends, and export reports in one place.</p>
+        <p>Track performance by timeframe, review trends, and export reports in one place. All data is automatically saved in your browser.</p>
     </section>
 
     <section class="panel">
@@ -103,7 +103,9 @@
         { id: 'college', label: 'College', maxCredits: 10 },
         { id: 'post', label: 'Post-College', maxCredits: 7 }
     ];
-    const STORAGE_KEY = 'selfEvalData.v2';
+    const STORAGE_KEY = 'selfEvalData.v3';
+    const LEGACY_STORAGE_KEYS = ['selfEvalData.v2', 'selfEvalData.v1'];
+    const DRAFT_STORAGE_KEY = 'selfEvalDraft.v1';
 
     const el = {
         dateInput: document.getElementById('evalDate'),
@@ -143,8 +145,41 @@
         },
         saveAll(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); },
         loadAll() {
-            try { return this.parse(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); }
-            catch { return []; }
+            try {
+                const current = localStorage.getItem(STORAGE_KEY);
+                if (current) return this.parse(JSON.parse(current));
+
+                for (const legacyKey of LEGACY_STORAGE_KEYS) {
+                    const legacy = localStorage.getItem(legacyKey);
+                    if (!legacy) continue;
+                    const parsed = this.parse(JSON.parse(legacy));
+                    this.saveAll(parsed);
+                    return parsed;
+                }
+
+                return [];
+            } catch {
+                return [];
+            }
+        },
+        saveDraft(date, scores) {
+            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ date, scores }));
+        },
+        loadDraft() {
+            try {
+                const draft = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || 'null');
+                if (!draft || !draft.date || !draft.scores) return null;
+                return {
+                    date: draft.date,
+                    scores: {
+                        pre: this.clampScore(draft.scores.pre),
+                        college: this.clampScore(draft.scores.college),
+                        post: this.clampScore(draft.scores.post)
+                    }
+                };
+            } catch {
+                return null;
+            }
         },
         upsert(data, entry) {
             const idx = data.findIndex(d => d.date === entry.date);
@@ -160,6 +195,12 @@
         el.toast.textContent = msg;
         el.toast.classList.add('show');
         setTimeout(() => el.toast.classList.remove('show'), 1500);
+    }
+
+
+    function persistDraft() {
+        if (!el.dateInput.value) return;
+        Backend.saveDraft(el.dateInput.value, currentScores);
     }
 
     function renderFrames() {
@@ -186,6 +227,7 @@
                 const frame = FRAMES.find(f => f.id === id);
                 document.getElementById(`credit-${id}`).textContent = (currentScores[id] / 10 * frame.maxCredits).toFixed(1) + ' credits';
                 updateTodayTotal();
+                persistDraft();
             });
         });
 
@@ -251,6 +293,7 @@
             tr.querySelector('button').addEventListener('click', () => {
                 allData = allData.filter(d => d.date !== entry.date);
                 Backend.saveAll(allData);
+                persistDraft();
                 renderHistory();
                 if (el.dateInput.value === entry.date) loadForDate(entry.date);
                 toast('Entry deleted');
@@ -305,6 +348,7 @@
     function clearAll() {
         if (!confirm('Delete all entries?')) return;
         allData = [];
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
         Backend.saveAll(allData);
         renderHistory();
         loadForDate(el.dateInput.value);
@@ -312,10 +356,18 @@
     }
 
     function init() {
-        el.dateInput.value = new Date().toISOString().slice(0, 10);
+        const draft = Backend.loadDraft();
+        el.dateInput.value = draft?.date || new Date().toISOString().slice(0, 10);
         loadForDate(el.dateInput.value);
+        if (draft && draft.date === el.dateInput.value) {
+            currentScores = draft.scores;
+            renderFrames();
+        }
         renderHistory();
-        el.dateInput.addEventListener('change', e => loadForDate(e.target.value));
+        el.dateInput.addEventListener('change', e => {
+            loadForDate(e.target.value);
+            persistDraft();
+        });
         el.saveBtn.addEventListener('click', saveCurrent);
         el.exportCsvBtn.addEventListener('click', exportCSV);
         el.exportPdfBtn.addEventListener('click', exportPDF);
