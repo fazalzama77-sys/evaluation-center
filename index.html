@@ -1,381 +1,326 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Self-Evaluation Tracker</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    <style>
-        :root {
-            --bg: #f1f5f9;
-            --card: #ffffff;
-            --text: #0f172a;
-            --muted: #475569;
-            --border: #e2e8f0;
-            --primary: #2563eb;
-            --success: #0f766e;
-            --danger: #be123c;
-            --gradient: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #38bdf8 100%);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, Segoe UI, Roboto, sans-serif; }
-        body { background: radial-gradient(circle at top right, #dbeafe, var(--bg)); color: var(--text); padding: 24px; }
-        .container { max-width: 980px; margin: 0 auto; display: grid; gap: 20px; }
-        .hero {
-            background: var(--gradient);
-            border-radius: 18px;
-            color: white;
-            padding: 24px;
-            box-shadow: 0 14px 30px rgba(37,99,235,.25);
-        }
-        .hero h1 { font-size: 1.8rem; margin-bottom: 8px; }
-        .hero p { opacity: .9; }
-        .panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(15,23,42,.06); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 14px; }
-        .stat { border: 1px solid var(--border); border-radius: 12px; padding: 14px; background: #f8fafc; }
-        .stat label { display: block; color: var(--muted); font-size: .82rem; }
-        .stat strong { font-size: 1.4rem; }
-        .date-wrap { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        input[type="date"] { border: 2px solid var(--border); border-radius: 10px; padding: 10px 12px; font-weight: 600; }
-        .frame { border: 1px solid var(--border); border-radius: 12px; padding: 14px; background: #fff; display: grid; gap: 8px; }
-        .frame-top { display:flex; justify-content:space-between; align-items:center; }
-        .tag { font-size: .76rem; background: #e0e7ff; color: #1e3a8a; border-radius: 999px; padding: 3px 8px; }
-        .range-row { display:flex; align-items:center; gap:10px; }
-        .range-row input[type="range"] { flex:1; accent-color: var(--primary); }
-        .pill { background:#ecfeff; color:#155e75; padding:4px 10px; border-radius:999px; font-weight:700; font-size:.84rem; }
-        .buttons { display:flex; gap:10px; flex-wrap:wrap; }
-        button { border:1px solid var(--border); background:white; color:var(--text); padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer; }
-        button.primary { background: var(--primary); color:white; border-color: var(--primary); }
-        button.danger { border-color:#fecaca; color:var(--danger); background:#fff1f2; }
-        table { width:100%; border-collapse: collapse; margin-top:10px; }
-        th, td { border-bottom:1px solid var(--border); padding:10px 8px; text-align:center; font-size:.87rem; }
-        th { background:#f8fafc; color:#334155; }
-        .empty { text-align:center; color:var(--muted); padding:16px; }
-        .toast { position: fixed; right: 20px; bottom: 20px; background:#0f172a; color:white; padding:10px 14px; border-radius:10px; opacity:0; pointer-events:none; transform: translateY(10px); transition:all .25s; }
-        .toast.show { opacity:1; transform: translateY(0); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraTrack // Premium Daily Self-Evaluation & Discipline Dashboard</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- CDNs for JS Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-<div class="container">
-    <section class="hero">
-        <h1>📊 Daily Self-Evaluation Dashboard</h1>
-        <p>Track performance by timeframe, review trends, and export reports in one place. All data is automatically saved in your browser.</p>
-    </section>
-
-    <section class="panel">
-        <div class="grid">
-            <div class="stat"><label>Today Total</label><strong id="totalCreditsDisplay">0 / 25</strong></div>
-            <div class="stat"><label>Average Credits</label><strong id="avgCreditsStat">0.0</strong></div>
-            <div class="stat"><label>Streak (days)</label><strong id="streakStat">0</strong></div>
-            <div class="stat"><label>Best Day</label><strong id="bestDayStat">—</strong></div>
+  
+  <!-- Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <i data-lucide="zap"></i>
         </div>
-    </section>
-
-    <section class="panel">
-        <div class="date-wrap">
-            <label for="evalDate"><strong>Evaluation Date</strong></label>
-            <input type="date" id="evalDate">
+        <div>
+          <h1>AuraTrack</h1>
+          <p class="subtitle">Daily Self-Evaluation & Discipline Dashboard</p>
         </div>
-        <div id="framesContainer" class="grid" style="margin-top:16px;"></div>
-        <div class="buttons" style="margin-top:16px;">
-            <button class="primary" id="saveBtn">💾 Save / Update</button>
-            <button id="exportCsvBtn">📥 Export CSV</button>
-            <button id="exportPdfBtn">📄 Export PDF</button>
-            <button class="danger" id="clearAllBtn">🗑 Clear All Data</button>
+      </div>
+      
+      <div class="header-actions">
+        <span class="status-badge" id="syncStatus">
+          <span class="status-dot"></span>
+          <span class="status-text">Connected</span>
+        </span>
+        <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+          <i data-lucide="sun" class="sun-icon"></i>
+          <i data-lucide="moon" class="moon-icon"></i>
+        </button>
+        <button id="settingsBtn" class="icon-btn" title="Open Settings">
+          <i data-lucide="settings"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- KPI Row -->
+    <section class="kpi-grid">
+      <div class="kpi-card target-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Today's Progress</span>
+          <i data-lucide="target" class="kpi-icon"></i>
         </div>
+        <div class="kpi-value-container">
+          <div class="kpi-value" id="todayTotal">0.0</div>
+          <div class="kpi-unit">/ <span id="targetDisplay">20</span> cr</div>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="todayProgress"></div>
+        </div>
+        <span class="kpi-desc" id="todayPercentage">0% of daily target reached</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">7-Day Average</span>
+          <i data-lucide="trending-up" class="kpi-icon"></i>
+        </div>
+        <div class="kpi-value" id="weeklyAverage">0.0</div>
+        <span class="kpi-desc" id="weeklyChangeDesc">No historical data yet</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Active Streak</span>
+          <i data-lucide="flame" class="kpi-icon streak-icon"></i>
+        </div>
+        <div class="kpi-value" id="currentStreak">0</div>
+        <span class="kpi-desc" id="longestStreakDesc">Longest streak: 0 days</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Completion Rate</span>
+          <i data-lucide="calendar-check" class="kpi-icon"></i>
+        </div>
+        <div class="kpi-value" id="completionRate">0%</div>
+        <span class="kpi-desc" id="evaluatedDaysCount">0 of last 30 days tracked</span>
+      </div>
     </section>
 
-    <section class="panel">
-        <h3>Saved History</h3>
-        <table id="historyTable">
-            <thead>
-            <tr><th>Date</th><th>Pre</th><th>College</th><th>Post</th><th>Pre Cr</th><th>College Cr</th><th>Post Cr</th><th>Total</th><th>Action</th></tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </section>
-</div>
-<div class="toast" id="toast"></div>
-<script>
-(() => {
-    const FRAMES = [
-        { id: 'pre', label: 'Pre-College', maxCredits: 8 },
-        { id: 'college', label: 'College', maxCredits: 10 },
-        { id: 'post', label: 'Post-College', maxCredits: 7 }
-    ];
-    const STORAGE_KEY = 'selfEvalData.v3';
-    const LEGACY_STORAGE_KEYS = ['selfEvalData.v2', 'selfEvalData.v1'];
-    const DRAFT_STORAGE_KEY = 'selfEvalDraft.v1';
+    <!-- Content Workspace Grid -->
+    <div class="workspace-grid">
+      
+      <!-- Left Column: Day Inputs -->
+      <div class="workspace-column left-col">
+        <section class="glass-panel" id="entryPanel">
+          <div class="panel-header">
+            <div class="panel-title-area">
+              <i data-lucide="edit-3" class="panel-icon"></i>
+              <h2>Daily Evaluation</h2>
+            </div>
+            <div class="date-selector-wrapper">
+              <input type="date" id="evalDate" class="date-picker">
+            </div>
+          </div>
 
-    const el = {
-        dateInput: document.getElementById('evalDate'),
-        framesContainer: document.getElementById('framesContainer'),
-        totalCreditsDisplay: document.getElementById('totalCreditsDisplay'),
-        avgCreditsStat: document.getElementById('avgCreditsStat'),
-        streakStat: document.getElementById('streakStat'),
-        bestDayStat: document.getElementById('bestDayStat'),
-        saveBtn: document.getElementById('saveBtn'),
-        exportCsvBtn: document.getElementById('exportCsvBtn'),
-        exportPdfBtn: document.getElementById('exportPdfBtn'),
-        clearAllBtn: document.getElementById('clearAllBtn'),
-        historyTableBody: document.querySelector('#historyTable tbody'),
-        toast: document.getElementById('toast')
-    };
+          <form id="evaluationForm" onsubmit="return false;">
+            <!-- Categories / Timeframes container (rendered dynamically) -->
+            <div id="categoriesContainer" class="categories-list">
+              <!-- Dynamically populated via JS -->
+            </div>
 
-    const Backend = {
-        parse(data) {
-            if (!Array.isArray(data)) return [];
-            return data
-                .filter(item => item && /^\d{4}-\d{2}-\d{2}$/.test(item.date))
-                .map(item => ({
-                    date: item.date,
-                    pre: this.clampScore(item.pre),
-                    college: this.clampScore(item.college),
-                    post: this.clampScore(item.post)
-                }))
-                .sort((a, b) => a.date < b.date ? 1 : -1);
-        },
-        clampScore(v) {
-            const n = Number(v);
-            if (!Number.isFinite(n)) return 0;
-            return Math.max(0, Math.min(10, Math.round(n)));
-        },
-        credits(entry) {
-            return FRAMES.reduce((sum, f) => sum + (entry[f.id] / 10 * f.maxCredits), 0);
-        },
-        saveAll(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); },
-        loadAll() {
-            try {
-                const current = localStorage.getItem(STORAGE_KEY);
-                if (current) return this.parse(JSON.parse(current));
-
-                for (const legacyKey of LEGACY_STORAGE_KEYS) {
-                    const legacy = localStorage.getItem(legacyKey);
-                    if (!legacy) continue;
-                    const parsed = this.parse(JSON.parse(legacy));
-                    this.saveAll(parsed);
-                    return parsed;
-                }
-
-                return [];
-            } catch {
-                return [];
-            }
-        },
-        saveDraft(date, scores) {
-            localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ date, scores }));
-        },
-        loadDraft() {
-            try {
-                const draft = JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || 'null');
-                if (!draft || !draft.date || !draft.scores) return null;
-                return {
-                    date: draft.date,
-                    scores: {
-                        pre: this.clampScore(draft.scores.pre),
-                        college: this.clampScore(draft.scores.college),
-                        post: this.clampScore(draft.scores.post)
-                    }
-                };
-            } catch {
-                return null;
-            }
-        },
-        upsert(data, entry) {
-            const idx = data.findIndex(d => d.date === entry.date);
-            if (idx >= 0) data[idx] = entry; else data.push(entry);
-            return data.sort((a, b) => a.date < b.date ? 1 : -1);
-        }
-    };
-
-    let allData = Backend.loadAll();
-    let currentScores = { pre: 5, college: 5, post: 5 };
-
-    function toast(msg) {
-        el.toast.textContent = msg;
-        el.toast.classList.add('show');
-        setTimeout(() => el.toast.classList.remove('show'), 1500);
-    }
-
-
-    function persistDraft() {
-        if (!el.dateInput.value) return;
-        Backend.saveDraft(el.dateInput.value, currentScores);
-    }
-
-    function renderFrames() {
-        el.framesContainer.innerHTML = '';
-        FRAMES.forEach(frame => {
-            const c = (currentScores[frame.id] / 10 * frame.maxCredits).toFixed(1);
-            const card = document.createElement('div');
-            card.className = 'frame';
-            card.innerHTML = `
-                <div class="frame-top"><strong>${frame.label}</strong><span class="tag">max ${frame.maxCredits}</span></div>
-                <div class="range-row">
-                    <input type="range" min="0" max="10" value="${currentScores[frame.id]}" data-frame="${frame.id}">
-                    <strong>${currentScores[frame.id]}</strong>
+            <!-- Mood and Reflections -->
+            <div class="form-section">
+              <h3 class="section-title"><i data-lucide="smile"></i> Mood & Reflections</h3>
+              
+              <div class="mood-selector-container">
+                <span class="slider-label">Daily Vibe / Energy</span>
+                <div class="mood-emojis">
+                  <button type="button" class="mood-btn" data-mood="1" title="Tired / Off">😢</button>
+                  <button type="button" class="mood-btn" data-mood="2" title="Unfocused">😕</button>
+                  <button type="button" class="mood-btn" data-mood="3" title="Average / Fine">😐</button>
+                  <button type="button" class="mood-btn active" data-mood="4" title="Productive">🙂</button>
+                  <button type="button" class="mood-btn" data-mood="5" title="Peak Discipline!">😄</button>
                 </div>
-                <div class="pill" id="credit-${frame.id}">${c} credits</div>`;
-            el.framesContainer.appendChild(card);
-        });
+              </div>
 
-        document.querySelectorAll('input[type="range"]').forEach(slider => {
-            slider.addEventListener('input', function() {
-                const id = this.dataset.frame;
-                currentScores[id] = Backend.clampScore(this.value);
-                this.nextElementSibling.textContent = currentScores[id];
-                const frame = FRAMES.find(f => f.id === id);
-                document.getElementById(`credit-${id}`).textContent = (currentScores[id] / 10 * frame.maxCredits).toFixed(1) + ' credits';
-                updateTodayTotal();
-                persistDraft();
-            });
-        });
+              <div class="notes-container">
+                <label for="journalNotes" class="slider-label">Journal / Notes</label>
+                <textarea id="journalNotes" placeholder="What went well? Where did you encounter resistance? Notes on college work or habits..." rows="3"></textarea>
+              </div>
+            </div>
 
-        updateTodayTotal();
-    }
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" id="saveBtn" class="btn primary-btn">
+                <i data-lucide="save"></i> Save Evaluation
+              </button>
+              <button type="button" id="resetBtn" class="btn secondary-btn">
+                <i data-lucide="refresh-cw"></i> Reset Form
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
 
-    function updateTodayTotal() {
-        const total = Backend.credits(currentScores).toFixed(1);
-        el.totalCreditsDisplay.textContent = `${total} / 25`;
-    }
+      <!-- Right Column: Graphs & Heatmap -->
+      <div class="workspace-column right-col">
+        
+        <!-- Heatmap Panel -->
+        <section class="glass-panel heatmap-panel">
+          <div class="panel-header">
+            <div class="panel-title-area">
+              <i data-lucide="calendar" class="panel-icon"></i>
+              <h2>Discipline Grid</h2>
+            </div>
+            <span class="legend-badge">Last 12 Months</span>
+          </div>
+          <div class="heatmap-container-wrapper">
+            <div id="heatmapContainer" class="heatmap-grid">
+              <!-- Dynamically populated SVG Heatmap -->
+            </div>
+            <div class="heatmap-legend">
+              <span>Less</span>
+              <span class="legend-color color-0"></span>
+              <span class="legend-color color-1"></span>
+              <span class="legend-color color-2"></span>
+              <span class="legend-color color-3"></span>
+              <span class="legend-color color-4"></span>
+              <span>More Credits</span>
+            </div>
+          </div>
+        </section>
 
-    function loadForDate(date) {
-        const row = allData.find(d => d.date === date);
-        currentScores = row ? { pre: row.pre, college: row.college, post: row.post } : { pre: 5, college: 5, post: 5 };
-        renderFrames();
-    }
+        <!-- Charts Grid (2 columns on large screens) -->
+        <div class="charts-row">
+          <section class="glass-panel chart-panel">
+            <div class="panel-header">
+              <div class="panel-title-area">
+                <i data-lucide="trending-up" class="panel-icon"></i>
+                <h2>Credit Trends</h2>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="trendChart"></canvas>
+            </div>
+          </section>
 
-    function getStreak(data) {
-        if (!data.length) return 0;
-        const set = new Set(data.map(d => d.date));
-        let streak = 0;
-        let cursor = new Date();
-        while (true) {
-            const date = cursor.toISOString().slice(0, 10);
-            if (!set.has(date)) break;
-            streak++;
-            cursor.setDate(cursor.getDate() - 1);
-        }
-        return streak;
-    }
+          <section class="glass-panel chart-panel">
+            <div class="panel-header">
+              <div class="panel-title-area">
+                <i data-lucide="pie-chart" class="panel-icon"></i>
+                <h2>Category Split</h2>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="splitChart"></canvas>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
 
-    function renderStats() {
-        if (!allData.length) {
-            el.avgCreditsStat.textContent = '0.0';
-            el.streakStat.textContent = '0';
-            el.bestDayStat.textContent = '—';
-            return;
-        }
-        const totals = allData.map(d => ({ date: d.date, total: Backend.credits(d) }));
-        const avg = totals.reduce((a, b) => a + b.total, 0) / totals.length;
-        const best = totals.reduce((a, b) => a.total > b.total ? a : b);
+    <!-- History Log Table -->
+    <section class="glass-panel history-panel">
+      <div class="panel-header">
+        <div class="panel-title-area">
+          <i data-lucide="history" class="panel-icon"></i>
+          <h2>Evaluation History</h2>
+        </div>
+        <div class="history-actions">
+          <button id="importBtn" class="btn secondary-btn compact">
+            <i data-lucide="upload"></i> Import JSON
+          </button>
+          <button id="exportCsvBtn" class="btn secondary-btn compact">
+            <i data-lucide="download"></i> Export CSV
+          </button>
+          <button id="exportPdfBtn" class="btn secondary-btn compact">
+            <i data-lucide="file-text"></i> Export PDF
+          </button>
+          <button id="exportJsonBtn" class="btn secondary-btn compact">
+            <i data-lucide="code"></i> Backup JSON
+          </button>
+        </div>
+      </div>
+      
+      <div class="table-scroll-wrapper">
+        <table id="historyTable" class="premium-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Mood</th>
+              <th>Pre-College</th>
+              <th>College</th>
+              <th>Post-College</th>
+              <th>Total Credits</th>
+              <th>Journal Highlights</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
-        el.avgCreditsStat.textContent = avg.toFixed(1);
-        el.streakStat.textContent = getStreak(allData);
-        el.bestDayStat.textContent = `${best.date} (${best.total.toFixed(1)})`;
-    }
+  <!-- Settings Panel (Slide-out drawer or overlay card) -->
+  <div class="overlay-modal" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2><i data-lucide="settings"></i> Customize AuraTrack</h2>
+        <button id="closeSettings" class="icon-btn"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h3>Daily Goals</h3>
+          <div class="settings-group">
+            <label for="settingsTargetCredits">Daily Target Credits (Max 25):</label>
+            <div class="input-with-label">
+              <input type="number" id="settingsTargetCredits" min="1" max="25" value="20">
+              <span>credits</span>
+            </div>
+          </div>
+        </div>
 
-    function renderHistory() {
-        el.historyTableBody.innerHTML = '';
-        if (!allData.length) {
-            el.historyTableBody.innerHTML = '<tr><td colspan="9" class="empty">No entries yet. Save your first day.</td></tr>';
-            renderStats();
-            return;
-        }
+        <div class="settings-section">
+          <h3>Configure Categories & Habits</h3>
+          <p class="settings-hint">Define what habits contribute to your credits in each daily timeframe.</p>
+          
+          <div id="categoryConfigurator" class="config-categories-list">
+            <!-- Categories loaded dynamically from config -->
+          </div>
+        </div>
 
-        allData.forEach(entry => {
-            const pre = (entry.pre / 10 * 8).toFixed(1);
-            const college = (entry.college / 10 * 10).toFixed(1);
-            const post = (entry.post / 10 * 7).toFixed(1);
-            const total = (Number(pre) + Number(college) + Number(post)).toFixed(1);
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${entry.date}</td><td>${entry.pre}</td><td>${entry.college}</td><td>${entry.post}</td><td>${pre}</td><td>${college}</td><td>${post}</td><td><strong>${total}</strong></td><td><button data-date="${entry.date}">Delete</button></td>`;
-            tr.querySelector('button').addEventListener('click', () => {
-                allData = allData.filter(d => d.date !== entry.date);
-                Backend.saveAll(allData);
-                persistDraft();
-                renderHistory();
-                if (el.dateInput.value === entry.date) loadForDate(entry.date);
-                toast('Entry deleted');
-            });
-            el.historyTableBody.appendChild(tr);
-        });
+        <div class="settings-section danger-zone">
+          <h3>Danger Zone</h3>
+          <p>This will erase all evaluations and local application data.</p>
+          <button id="clearAllBtn" class="btn danger-btn">
+            <i data-lucide="trash-2"></i> Wipe All Data
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="saveSettingsBtn" class="btn primary-btn">Save Configurations</button>
+      </div>
+    </div>
+  </div>
 
-        renderStats();
-    }
+  <!-- Import Modal -->
+  <div class="overlay-modal" id="importModal">
+    <div class="modal-card compact">
+      <div class="modal-header">
+        <h2><i data-lucide="upload"></i> Import Evaluations</h2>
+        <button id="closeImport" class="icon-btn"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-hint">Select a backup `.json` file to restore or merge evaluations. Existing entries with matching dates will be overwritten.</p>
+        <div class="file-upload-area">
+          <input type="file" id="importFile" accept=".json">
+          <i data-lucide="file-json" class="upload-icon"></i>
+          <span class="upload-text">Click to choose a JSON file or drag it here</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="submitImportBtn" class="btn primary-btn" disabled>Import Data</button>
+      </div>
+    </div>
+  </div>
 
-    function saveCurrent() {
-        if (!el.dateInput.value) return toast('Please pick a date');
-        const entry = { date: el.dateInput.value, ...currentScores };
-        allData = Backend.upsert(allData, entry);
-        Backend.saveAll(allData);
-        renderHistory();
-        toast('Saved successfully');
-    }
+  <!-- Toast Notification -->
+  <div class="toast-notification" id="toastContainer"></div>
 
-    function exportCSV() {
-        if (!allData.length) return toast('No data to export');
-        const header = 'Date,Pre Score,College Score,Post Score,Pre Credits,College Credits,Post Credits,Total Credits\n';
-        const rows = allData.map(e => {
-            const pre = (e.pre / 10 * 8).toFixed(1), col = (e.college / 10 * 10).toFixed(1), post = (e.post / 10 * 7).toFixed(1);
-            return `${e.date},${e.pre},${e.college},${e.post},${pre},${col},${post},${(Number(pre)+Number(col)+Number(post)).toFixed(1)}`;
-        }).join('\n');
-        const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `self_eval_${new Date().toISOString().slice(0,10)}.csv`; a.click();
-        URL.revokeObjectURL(url);
-    }
-
-    function exportPDF() {
-        if (!allData.length) return toast('No data to export');
-        if (!window.jspdf?.jsPDF) return toast('PDF lib unavailable');
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text('Self-Evaluation Report', 14, 16);
-        doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 23);
-        doc.autoTable({
-            head: [['Date', 'Pre', 'College', 'Post', 'Pre Cr', 'Col Cr', 'Post Cr', 'Total']],
-            body: allData.map(e => {
-                const pre = (e.pre / 10 * 8).toFixed(1), col = (e.college / 10 * 10).toFixed(1), post = (e.post / 10 * 7).toFixed(1);
-                return [e.date, e.pre, e.college, e.post, pre, col, post, (Number(pre)+Number(col)+Number(post)).toFixed(1)];
-            }),
-            startY: 30
-        });
-        doc.save(`self_eval_report_${new Date().toISOString().slice(0,10)}.pdf`);
-    }
-
-    function clearAll() {
-        if (!confirm('Delete all entries?')) return;
-        allData = [];
-        localStorage.removeItem(DRAFT_STORAGE_KEY);
-        Backend.saveAll(allData);
-        renderHistory();
-        loadForDate(el.dateInput.value);
-        toast('All data cleared');
-    }
-
-    function init() {
-        const draft = Backend.loadDraft();
-        el.dateInput.value = draft?.date || new Date().toISOString().slice(0, 10);
-        loadForDate(el.dateInput.value);
-        if (draft && draft.date === el.dateInput.value) {
-            currentScores = draft.scores;
-            renderFrames();
-        }
-        renderHistory();
-        el.dateInput.addEventListener('change', e => {
-            loadForDate(e.target.value);
-            persistDraft();
-        });
-        el.saveBtn.addEventListener('click', saveCurrent);
-        el.exportCsvBtn.addEventListener('click', exportCSV);
-        el.exportPdfBtn.addEventListener('click', exportPDF);
-        el.clearAllBtn.addEventListener('click', clearAll);
-    }
-
-    init();
-})();
-</script>
+  <!-- Load JS Logic -->
+  <script src="js/app.js"></script>
 </body>
 </html>
