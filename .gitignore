@@ -1,0 +1,26 @@
+# Dependency directories
+node_modules/
+
+# Local databases and configs
+data/evaluations.json
+data/config.json
+data/backups/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development
+.env.staging
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor / OS configs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
