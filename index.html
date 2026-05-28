@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AuraTrack // Premium Daily Self-Evaluation & Discipline Dashboard</title>
+  <title>AuraTrack // Premium Daily Self-Evaluation & Discipline Mirror</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +30,7 @@
         </div>
         <div>
           <h1>AuraTrack</h1>
-          <p class="subtitle">Daily Self-Evaluation & Discipline Dashboard</p>
+          <p class="subtitle">Daily Discipline Mirror</p>
         </div>
       </div>
       
@@ -51,61 +51,62 @@
   </header>
 
   <main class="container">
-    <!-- KPI Row -->
-    <section class="kpi-grid">
-      <div class="kpi-card target-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Today's Progress</span>
-          <i data-lucide="target" class="kpi-icon"></i>
-        </div>
-        <div class="kpi-value-container">
-          <div class="kpi-value" id="todayTotal">0.0</div>
-          <div class="kpi-unit">/ <span id="targetDisplay">20</span> cr</div>
-        </div>
-        <div class="progress-bar-container">
-          <div class="progress-bar" id="todayProgress"></div>
-        </div>
-        <span class="kpi-desc" id="todayPercentage">0% of daily target reached</span>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">7-Day Average</span>
-          <i data-lucide="trending-up" class="kpi-icon"></i>
-        </div>
-        <div class="kpi-value" id="weeklyAverage">0.0</div>
-        <span class="kpi-desc" id="weeklyChangeDesc">No historical data yet</span>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Active Streak</span>
-          <i data-lucide="flame" class="kpi-icon streak-icon"></i>
-        </div>
-        <div class="kpi-value" id="currentStreak">0</div>
-        <span class="kpi-desc" id="longestStreakDesc">Longest streak: 0 days</span>
-      </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Completion Rate</span>
-          <i data-lucide="calendar-check" class="kpi-icon"></i>
-        </div>
-        <div class="kpi-value" id="completionRate">0%</div>
-        <span class="kpi-desc" id="evaluatedDaysCount">0 of last 30 days tracked</span>
-      </div>
-    </section>
-
-    <!-- Content Workspace Grid -->
-    <div class="workspace-grid">
+    
+    <!-- Self-Mirror & Focus Workspace Section -->
+    <section class="mirror-workspace">
       
-      <!-- Left Column: Day Inputs -->
-      <div class="workspace-column left-col">
+      <!-- Left Column: The Self-Mirror Hero Display -->
+      <div class="mirror-hero-column">
+        <div class="glass-panel mirror-card status-failure" id="mirrorCard">
+          <div class="mirror-header">
+            <span class="mirror-title">Daily Self-Mirror</span>
+            <span class="status-indicator-dot"></span>
+          </div>
+          
+          <!-- Circular Progress Ring -->
+          <div class="circle-progress-wrapper">
+            <svg class="progress-ring" width="170" height="170">
+              <circle class="progress-ring-circle-bg" stroke="rgba(255,255,255,0.03)" stroke-width="12" fill="transparent" r="74" cx="85" cy="85"/>
+              <circle class="progress-ring-circle" id="progressCircle" stroke="#ef4444" stroke-width="12" fill="transparent" r="74" cx="85" cy="85"/>
+            </svg>
+            <div class="circle-value-container">
+              <span class="circle-value" id="todayTotal">0.0</span>
+              <span class="circle-max">/ 25.0 cr</span>
+            </div>
+          </div>
+
+          <!-- Rating Badge & Feedback -->
+          <div class="mirror-reflection-details">
+            <div class="reflection-badge" id="reflectionBadge">SLACKING</div>
+            <div class="reflection-level" id="reflectionLevel">FAILURE</div>
+            <p class="reflection-quote" id="reflectionQuote">A day without discipline is a step backward. Pick yourself up tomorrow.</p>
+          </div>
+
+          <!-- Motivational Micro KPIs -->
+          <div class="mirror-micro-kpis">
+            <div class="micro-kpi-item">
+              <span class="micro-kpi-label"><i data-lucide="flame" class="streak-icon"></i> Streak</span>
+              <strong class="micro-kpi-value" id="currentStreak">0</strong>
+            </div>
+            <div class="micro-kpi-item">
+              <span class="micro-kpi-label"><i data-lucide="trending-up"></i> 7d Avg</span>
+              <strong class="micro-kpi-value" id="weeklyAverage">0.0</strong>
+            </div>
+            <div class="micro-kpi-item">
+              <span class="micro-kpi-label"><i data-lucide="calendar-check"></i> 30d Rate</span>
+              <strong class="micro-kpi-value" id="completionRate">0%</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Habit Checklist Form -->
+      <div class="evaluation-form-column">
         <section class="glass-panel" id="entryPanel">
           <div class="panel-header">
             <div class="panel-title-area">
-              <i data-lucide="edit-3" class="panel-icon"></i>
-              <h2>Daily Evaluation</h2>
+              <i data-lucide="check-square" class="panel-icon"></i>
+              <h2>Today's Habits</h2>
             </div>
             <div class="date-selector-wrapper">
               <input type="date" id="evalDate" class="date-picker">
@@ -120,10 +121,10 @@
 
             <!-- Mood and Reflections -->
             <div class="form-section">
-              <h3 class="section-title"><i data-lucide="smile"></i> Mood & Reflections</h3>
+              <h3 class="section-title"><i data-lucide="edit-3"></i> Reflections</h3>
               
               <div class="mood-selector-container">
-                <span class="slider-label">Daily Vibe / Energy</span>
+                <span class="slider-label">Energy / Vibe</span>
                 <div class="mood-emojis">
                   <button type="button" class="mood-btn" data-mood="1" title="Tired / Off">😢</button>
                   <button type="button" class="mood-btn" data-mood="2" title="Unfocused">😕</button>
@@ -134,40 +135,45 @@
               </div>
 
               <div class="notes-container">
-                <label for="journalNotes" class="slider-label">Journal / Notes</label>
-                <textarea id="journalNotes" placeholder="What went well? Where did you encounter resistance? Notes on college work or habits..." rows="3"></textarea>
+                <label for="journalNotes" class="slider-label">Notes / Journal</label>
+                <textarea id="journalNotes" placeholder="What resistance did you conquer today? Journal reflections..." rows="3"></textarea>
               </div>
             </div>
 
             <!-- Form Actions -->
             <div class="form-actions">
               <button type="button" id="saveBtn" class="btn primary-btn">
-                <i data-lucide="save"></i> Save Evaluation
+                <i data-lucide="save"></i> Lock In Day
               </button>
               <button type="button" id="resetBtn" class="btn secondary-btn">
-                <i data-lucide="refresh-cw"></i> Reset Form
+                <i data-lucide="refresh-cw"></i> Reset Inputs
               </button>
             </div>
           </form>
         </section>
       </div>
 
-      <!-- Right Column: Graphs & Heatmap -->
-      <div class="workspace-column right-col">
-        
-        <!-- Heatmap Panel -->
-        <section class="glass-panel heatmap-panel">
-          <div class="panel-header">
-            <div class="panel-title-area">
-              <i data-lucide="calendar" class="panel-icon"></i>
-              <h2>Discipline Grid</h2>
-            </div>
+    </section>
+
+    <!-- Collapsible Analytics & History Console -->
+    <section class="glass-panel analytics-console">
+      <button class="console-toggle-btn" id="consoleToggleBtn">
+        <div class="toggle-title">
+          <i data-lucide="bar-chart-2"></i>
+          <span>Show Consistency Analytics & History logs</span>
+        </div>
+        <i data-lucide="chevron-down" class="chevron-icon"></i>
+      </button>
+
+      <div class="console-content" id="consoleContent">
+        <!-- Heatmap -->
+        <div class="heatmap-panel-wrapper">
+          <div class="panel-header-mini">
+            <h3><i data-lucide="calendar"></i> Consistency Grid</h3>
             <span class="legend-badge">Last 12 Months</span>
           </div>
           <div class="heatmap-container-wrapper">
-            <div id="heatmapContainer" class="heatmap-grid">
-              <!-- Dynamically populated SVG Heatmap -->
-            </div>
+            <div id="heatmapContainer" class="heatmap-grid"></div>
             <div class="heatmap-legend">
               <span>Less</span>
               <span class="legend-color color-0"></span>
@@ -178,83 +184,63 @@
               <span>More Credits</span>
             </div>
           </div>
-        </section>
+        </div>
 
-        <!-- Charts Grid (2 columns on large screens) -->
+        <!-- Charts row -->
         <div class="charts-row">
-          <section class="glass-panel chart-panel">
-            <div class="panel-header">
-              <div class="panel-title-area">
-                <i data-lucide="trending-up" class="panel-icon"></i>
-                <h2>Credit Trends</h2>
-              </div>
+          <div class="chart-panel">
+            <div class="panel-header-mini">
+              <h3><i data-lucide="trending-up"></i> Credit Trends</h3>
             </div>
             <div class="chart-container">
               <canvas id="trendChart"></canvas>
             </div>
-          </section>
+          </div>
 
-          <section class="glass-panel chart-panel">
-            <div class="panel-header">
-              <div class="panel-title-area">
-                <i data-lucide="pie-chart" class="panel-icon"></i>
-                <h2>Category Split</h2>
-              </div>
+          <div class="chart-panel">
+            <div class="panel-header-mini">
+              <h3><i data-lucide="pie-chart"></i> Category Split</h3>
             </div>
             <div class="chart-container">
               <canvas id="splitChart"></canvas>
             </div>
-          </section>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- History Log Table -->
-    <section class="glass-panel history-panel">
-      <div class="panel-header">
-        <div class="panel-title-area">
-          <i data-lucide="history" class="panel-icon"></i>
-          <h2>Evaluation History</h2>
+        <!-- History Log Table -->
+        <div class="history-table-wrapper">
+          <div class="panel-header-mini" style="margin-top: 10px;">
+            <h3><i data-lucide="history"></i> Logs</h3>
+            <div class="history-actions">
+              <button id="importBtn" class="btn secondary-btn compact"><i data-lucide="upload"></i> Import</button>
+              <button id="exportCsvBtn" class="btn secondary-btn compact"><i data-lucide="download"></i> CSV</button>
+              <button id="exportPdfBtn" class="btn secondary-btn compact"><i data-lucide="file-text"></i> PDF</button>
+              <button id="exportJsonBtn" class="btn secondary-btn compact"><i data-lucide="code"></i> JSON</button>
+            </div>
+          </div>
+          
+          <div class="table-scroll-wrapper">
+            <table id="historyTable" class="premium-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Mood</th>
+                  <!-- Dynamic categories inserted here -->
+                  <th>Total Credits</th>
+                  <th class="hide-on-mobile">Journal Highlights</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="history-actions">
-          <button id="importBtn" class="btn secondary-btn compact">
-            <i data-lucide="upload"></i> Import JSON
-          </button>
-          <button id="exportCsvBtn" class="btn secondary-btn compact">
-            <i data-lucide="download"></i> Export CSV
-          </button>
-          <button id="exportPdfBtn" class="btn secondary-btn compact">
-            <i data-lucide="file-text"></i> Export PDF
-          </button>
-          <button id="exportJsonBtn" class="btn secondary-btn compact">
-            <i data-lucide="code"></i> Backup JSON
-          </button>
-        </div>
-      </div>
-      
-      <div class="table-scroll-wrapper">
-        <table id="historyTable" class="premium-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Mood</th>
-              <th>Pre-College</th>
-              <th>College</th>
-              <th>Post-College</th>
-              <th>Total Credits</th>
-              <th>Journal Highlights</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody">
-            <!-- Dynamically populated rows -->
-          </tbody>
-        </table>
       </div>
     </section>
+
   </main>
 
-  <!-- Settings Panel (Slide-out drawer or overlay card) -->
+  <!-- Settings Panel -->
   <div class="overlay-modal" id="settingsModal">
     <div class="modal-card">
       <div class="modal-header">
@@ -304,7 +290,7 @@
         <button id="closeImport" class="icon-btn"><i data-lucide="x"></i></button>
       </div>
       <div class="modal-body">
-        <p class="settings-hint">Select a backup `.json` file to restore or merge evaluations. Existing entries with matching dates will be overwritten.</p>
+        <p class="settings-hint">Select a backup `.json` file to restore or merge evaluations.</p>
         <div class="file-upload-area">
           <input type="file" id="importFile" accept=".json">
           <i data-lucide="file-json" class="upload-icon"></i>

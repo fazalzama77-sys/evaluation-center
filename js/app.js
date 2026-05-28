@@ -42,16 +42,21 @@
     saveBtn: document.getElementById('saveBtn'),
     resetBtn: document.getElementById('resetBtn'),
     
+    // Self-Mirror & Micro KPIs
+    mirrorCard: document.getElementById('mirrorCard'),
+    progressCircle: document.getElementById('progressCircle'),
     todayTotal: document.getElementById('todayTotal'),
-    targetDisplay: document.getElementById('targetDisplay'),
-    todayProgress: document.getElementById('todayProgress'),
-    todayPercentage: document.getElementById('todayPercentage'),
+    reflectionBadge: document.getElementById('reflectionBadge'),
+    reflectionLevel: document.getElementById('reflectionLevel'),
+    reflectionQuote: document.getElementById('reflectionQuote'),
+    
     weeklyAverage: document.getElementById('weeklyAverage'),
-    weeklyChangeDesc: document.getElementById('weeklyChangeDesc'),
     currentStreak: document.getElementById('currentStreak'),
-    longestStreakDesc: document.getElementById('longestStreakDesc'),
     completionRate: document.getElementById('completionRate'),
-    evaluatedDaysCount: document.getElementById('evaluatedDaysCount'),
+
+    // Collapsible Console
+    consoleToggleBtn: document.getElementById('consoleToggleBtn'),
+    consoleParent: document.querySelector('.analytics-console'),
 
     heatmapContainer: document.getElementById('heatmapContainer'),
     historyTableBody: document.getElementById('historyTableBody'),
@@ -118,6 +123,13 @@
       updateChartsTheme();
       showToast(`Switched to ${newTheme} mode`, 'success');
     });
+
+    // Collapsible Console Toggle
+    if (el.consoleToggleBtn && el.consoleParent) {
+      el.consoleToggleBtn.addEventListener('click', () => {
+        el.consoleParent.classList.toggle('expanded');
+      });
+    }
 
     // Modal Triggers
     el.settingsBtn.addEventListener('click', openSettingsModal);
@@ -505,23 +517,20 @@
     // Sort evaluations
     evaluations.sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    el.targetDisplay.textContent = appConfig.targetCredits;
-    
     updateKPIs();
     renderHeatmap();
     renderHistoryTable();
     renderCharts();
   }
 
-  // --- KPI CALCULATIONS ---
+  // --- SELF-MIRROR ENGINE AND KPI CALCULATIONS ---
   function updateKPIs() {
     // Today's credits
     const activeTotal = calculateEntryCredits(activeEntry);
     el.todayTotal.textContent = activeTotal.toFixed(1);
     
-    const percentage = Math.min(100, Math.round((activeTotal / appConfig.targetCredits) * 100));
-    el.todayProgress.style.width = `${percentage}%`;
-    el.todayPercentage.textContent = `${percentage}% of daily target (${appConfig.targetCredits} cr) reached`;
+    // Update circular gauge and self-mirror status
+    updateSelfMirror(activeTotal);
 
     // 7-day average credits
     let last7DaysTotal = 0;
@@ -542,36 +551,10 @@
     
     const weeklyAvg = last7DaysCount > 0 ? (last7DaysTotal / last7DaysCount) : 0;
     el.weeklyAverage.textContent = weeklyAvg.toFixed(1);
-    
-    // Compare vs prior 7-day window (days 8-14)
-    let prior7DaysTotal = 0;
-    let prior7DaysCount = 0;
-    for (let i = 7; i < 14; i++) {
-      const checkDateObj = new Date();
-      checkDateObj.setDate(today.getDate() - i);
-      const checkDateStr = checkDateObj.toISOString().slice(0, 10);
-      
-      const record = evaluations.find(e => e.date === checkDateStr);
-      if (record) {
-        prior7DaysTotal += calculateEntryCredits(record);
-        prior7DaysCount++;
-      }
-    }
-    const priorAvg = prior7DaysCount > 0 ? (prior7DaysTotal / prior7DaysCount) : 0;
-    
-    if (last7DaysCount === 0) {
-      el.weeklyChangeDesc.textContent = 'No records in the last 7 days';
-    } else {
-      const diff = weeklyAvg - priorAvg;
-      const diffSign = diff >= 0 ? '+' : '';
-      el.weeklyChangeDesc.textContent = `${diffSign}${diff.toFixed(1)} cr compared to previous week (${priorAvg.toFixed(1)} cr)`;
-      el.weeklyChangeDesc.style.color = diff >= 0 ? 'var(--success)' : 'var(--danger)';
-    }
 
     // Streaks
     const streakData = getStreaks(evaluations);
     el.currentStreak.textContent = streakData.current;
-    el.longestStreakDesc.textContent = `Longest streak: ${streakData.longest} days`;
 
     // Completion Rate (last 30 days)
     let evaluatedCount = 0;
@@ -585,7 +568,66 @@
     }
     const rate = Math.round((evaluatedCount / 30) * 100);
     el.completionRate.textContent = `${rate}%`;
-    el.evaluatedDaysCount.textContent = `${evaluatedCount} of last 30 days evaluated`;
+  }
+
+  // Self Mirror Threshold and Content updates
+  function updateSelfMirror(credits) {
+    // Circumference of circular gauge (r=74) is 465px
+    const circumference = 465;
+    const percent = Math.max(0, Math.min(25, credits)) / 25;
+    const offset = circumference - (percent * circumference);
+    
+    if (el.progressCircle) {
+      el.progressCircle.style.strokeDashoffset = offset;
+    }
+
+    // Determine Status
+    let statusId = 'failure';
+    let badgeText = 'SLACKING';
+    let levelText = 'FAILURE';
+    let quote = 'A day without discipline is a step backward. Pick yourself up tomorrow.';
+    let circleColor = '#f43f5e'; // Rose Red
+
+    if (credits < 10) {
+      statusId = 'failure';
+      badgeText = 'SLACKING';
+      levelText = 'FAILURE';
+      quote = 'A day without discipline is a step backward. Pick yourself up tomorrow.';
+      circleColor = '#f43f5e';
+    } else if (credits < 17.5) {
+      statusId = 'mediocre';
+      badgeText = 'AVERAGE';
+      levelText = 'MEDIOCRE';
+      quote = 'Average effort leads to average results. Break past your limits.';
+      circleColor = '#f59e0b'; // Amber Gold
+    } else if (credits < 22) {
+      statusId = 'good';
+      badgeText = 'DISCIPLINED';
+      levelText = 'GOOD';
+      quote = 'Consistency is building your empire. You are on the right path!';
+      circleColor = '#06b6d4'; // Cyan
+    } else {
+      statusId = 'elite';
+      badgeText = 'FLOW STATE';
+      levelText = 'ELITE FLOW';
+      quote = 'Operating in the top 1%. You are completely unstoppable today!';
+      circleColor = '#10b981'; // Emerald Green
+    }
+
+    // Modify mirror card theme classes
+    if (el.mirrorCard) {
+      el.mirrorCard.className = `glass-panel mirror-card status-${statusId}`;
+    }
+
+    // Update texts
+    if (el.reflectionBadge) el.reflectionBadge.textContent = badgeText;
+    if (el.reflectionLevel) el.reflectionLevel.textContent = levelText;
+    if (el.reflectionQuote) el.reflectionQuote.textContent = quote;
+    
+    // Update SVG stroke color
+    if (el.progressCircle) {
+      el.progressCircle.setAttribute('stroke', circleColor);
+    }
   }
 
   function getStreaks(evals) {
@@ -654,7 +696,6 @@
   function renderHeatmap() {
     el.heatmapContainer.innerHTML = '';
     
-    // We want 53 columns representing 53 weeks. The rows represent Sunday - Saturday.
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('viewBox', '0 0 720 110');
@@ -687,7 +728,6 @@
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
-    // Render Day labels (every other day)
     dayLabels.forEach((label, idx) => {
       if (idx % 2 === 1) {
         const text = document.createElementNS(svgNS, 'text');
@@ -700,7 +740,6 @@
       }
     });
 
-    // We calculate weeks
     const curDate = new Date(startDate);
     let colIdx = 0;
     let lastMonth = -1;
@@ -742,7 +781,6 @@
       rect.setAttribute('height', cellSize);
       rect.setAttribute('class', `heatmap-cell level-${level}`);
       
-      // Tooltip description
       const moodEmoji = mood ? ['😢', '😕', '😐', '🙂', '😄'][mood - 1] : '—';
       const tooltipText = credits !== undefined 
         ? `${dateStr}: ${credits.toFixed(1)} cr (Mood: ${moodEmoji})`
@@ -752,7 +790,6 @@
       title.textContent = tooltipText;
       rect.appendChild(title);
       
-      // Click calendar date to load it
       rect.style.cursor = 'pointer';
       rect.addEventListener('click', () => {
         el.evalDate.value = dateStr;
@@ -763,7 +800,6 @@
 
       svg.appendChild(rect);
 
-      // Advance date
       curDate.setDate(curDate.getDate() + 1);
       if (weekDay === 6) colIdx++;
     }
@@ -778,7 +814,6 @@
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
     
     // --- 1. TREND LINE CHART ---
-    // Take the last 15 days of evaluations in chronological order
     const trendData = [...evaluations]
       .slice(0, 15)
       .reverse();
@@ -793,10 +828,9 @@
 
     const ctxTrend = document.getElementById('trendChart').getContext('2d');
     
-    // Create gradient fill for credits
     const primaryGrad = ctxTrend.createLinearGradient(0, 0, 0, 200);
-    primaryGrad.addColorStop(0, 'rgba(139, 92, 246, 0.4)');
-    primaryGrad.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+    primaryGrad.addColorStop(0, 'rgba(124, 58, 237, 0.4)');
+    primaryGrad.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
 
     trendChartInstance = new Chart(ctxTrend, {
       type: 'line',
@@ -806,13 +840,13 @@
           {
             label: 'Credits',
             data: creditPoints.length ? creditPoints : [0],
-            borderColor: '#8b5cf6',
+            borderColor: '#7c3aed',
             backgroundColor: primaryGrad,
             borderWidth: 3,
             fill: true,
             tension: 0.35,
-            pointBackgroundColor: '#8b5cf6',
-            pointBorderColor: isDark ? '#16182c' : '#fff',
+            pointBackgroundColor: '#7c3aed',
+            pointBorderColor: isDark ? '#0d0e1c' : '#fff',
             pointBorderWidth: 2,
             pointRadius: 4,
             pointHoverRadius: 6
@@ -860,7 +894,6 @@
     });
 
     // --- 2. CATEGORY SPLIT PIE/RADAR CHART ---
-    // Calculate historic averages for each category
     const catAverages = {};
     appConfig.frames.forEach(frame => {
       catAverages[frame.id] = 0;
@@ -873,7 +906,6 @@
           catAverages[frame.id] += (score / 10) * frame.maxCredits;
         });
       });
-      // Divide by counts
       appConfig.frames.forEach(frame => {
         catAverages[frame.id] = parseFloat((catAverages[frame.id] / evaluations.length).toFixed(1));
       });
@@ -881,7 +913,7 @@
 
     const catLabels = appConfig.frames.map(f => f.label);
     const catData = appConfig.frames.map(f => catAverages[f.id]);
-    const maxDataColors = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
+    const maxDataColors = ['#7c3aed', '#06b6d4', '#10b981', '#f59e0b', '#ef4444'];
 
     if (splitChartInstance) {
       splitChartInstance.destroy();
@@ -897,7 +929,7 @@
           data: catData.length ? catData : [1],
           backgroundColor: maxDataColors.slice(0, catLabels.length),
           borderWidth: isDark ? 2 : 1,
-          borderColor: isDark ? '#16182c' : '#fff',
+          borderColor: isDark ? '#0d0e1c' : '#fff',
           hoverOffset: 10
         }]
       },
@@ -931,7 +963,8 @@
 
   // --- HISTORICAL LOG TABLE ---
   function renderHistoryTable() {
-    // Render the Table Header dynamically to support custom categories and mobile responsiveness
+    el.historyTableBody.innerHTML = '';
+    
     const historyTable = document.getElementById('historyTable');
     if (historyTable) {
       const headerRow = historyTable.querySelector('thead tr');
@@ -947,11 +980,8 @@
         `;
       }
     }
-
-    el.historyTableBody.innerHTML = '';
     
     if (evaluations.length === 0) {
-      // Calculate colspan based on columns count (3 standard + category frames count + 2 standard)
       const colSpan = 5 + appConfig.frames.length;
       el.historyTableBody.innerHTML = `
         <tr>
@@ -967,12 +997,9 @@
       const credits = calculateEntryCredits(entry);
       
       const tr = document.createElement('tr');
-      
-      // Mood emoji picker
       const moodEmojis = ['😢', '😕', '😐', '🙂', '😄'];
       const emoji = moodEmojis[(entry.mood || 3) - 1];
 
-      // Readouts for segments
       const segmentCellContents = appConfig.frames.map(frame => {
         const score = entry.scores[frame.id] !== undefined ? entry.scores[frame.id] : 5;
         const cr = ((score / 10) * frame.maxCredits).toFixed(1);
@@ -995,7 +1022,6 @@
         </td>
       `;
 
-      // Event listener for action buttons
       tr.querySelector('.load-btn').addEventListener('click', () => {
         el.evalDate.value = entry.date;
         activeDate = entry.date;
@@ -1024,7 +1050,6 @@
       evaluations = evaluations.filter(e => e.date !== date);
       localStorage.setItem(LS_EVALS_KEY, JSON.stringify(evaluations));
       
-      // If we are looking at this date, reset inputs to baseline
       if (activeDate === date) {
         activeEntry = createEmptyEntry(activeDate);
         renderActiveEntry();
@@ -1073,14 +1098,12 @@
         </div>
       `;
 
-      // Render existing habit text inputs
       const habitsList = card.querySelector(`.habits-list-config`);
       const habits = frame.habits || [];
       habits.forEach((habit, hIdx) => {
         addHabitRowToConfig(habitsList, frame.id, habit);
       });
 
-      // Add Habit button listener
       card.querySelector('.add-habit-btn').addEventListener('click', function() {
         addHabitRowToConfig(habitsList, frame.id, '');
         if (window.lucide) lucide.createIcons();
@@ -1165,7 +1188,6 @@
       showToast('Configurations updated successfully', 'success');
       el.settingsModal.classList.remove('active');
       
-      // Update display details
       loadEntryForDate(activeDate);
       refreshDashboard();
 
@@ -1192,7 +1214,6 @@
 
     try {
       if (isServerOnline) {
-        // Clear via backend loop or single reset route. We delete all by posting empty array
         await fetch('/api/import', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1211,7 +1232,6 @@
     showToast('All user logs and configurations wiped.', 'danger');
     el.settingsModal.classList.remove('active');
     
-    // Reboot application logic
     await loadInitialData();
     loadEntryForDate(activeDate);
   }
@@ -1220,7 +1240,6 @@
   function exportCSV() {
     if (!evaluations.length) return showToast('No evaluations to export', 'warning');
     
-    // Dynamic headers based on config categories
     const categoryHeaders = appConfig.frames.map(f => `${f.label} Score,${f.label} Credits`).join(',');
     const headers = `Date,Mood Index,${categoryHeaders},Total Credits,Journal Notes\n`;
     
@@ -1232,7 +1251,7 @@
       }).join(',');
       
       const total = calculateEntryCredits(e).toFixed(1);
-      const cleanNotes = (e.notes || '').replace(/"/g, '""'); // Escape CSV double quotes
+      const cleanNotes = (e.notes || '').replace(/"/g, '""');
       
       return `${e.date},${e.mood},${catCols},${total},"${cleanNotes}"`;
     }).join('\n');
@@ -1265,7 +1284,6 @@
         const parsed = JSON.parse(e.target.result);
         let importList = [];
         
-        // Support both old and new backup schema
         if (parsed.evaluations && Array.isArray(parsed.evaluations)) {
           importList = parsed.evaluations;
           if (parsed.config) {
@@ -1289,7 +1307,6 @@
           const payload = await res.json();
           showToast(`Imported ${payload.count} records. Database sync complete.`, 'success');
         } else {
-          // Local storage merge
           const currentMap = new Map(evaluations.map(x => [x.date, x]));
           importList.forEach(item => {
             if (item && item.date && item.scores) {
@@ -1333,24 +1350,17 @@
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
-    
-    // Page Dimensions
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
+    const colorPrimary = [124, 58, 237]; // Violet RGB
+    const colorTextDark = [15, 23, 42]; // Slate 900 RGB
     
-    // Primary Aura colors for PDF styling
-    const colorPrimary = [139, 92, 246]; // Violet RGB
-    const colorTextDark = [30, 41, 59]; // Slate 800 RGB
-    
-    // Document Title Header
     doc.setFillColor(248, 250, 252);
     doc.rect(0, 0, pageWidth, 42, 'F');
     
-    // Color Bar Accent
     doc.setFillColor(...colorPrimary);
     doc.rect(0, 0, pageWidth, 4, 'F');
     
-    // Header Texts
     doc.setTextColor(...colorTextDark);
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(22);
@@ -1361,21 +1371,18 @@
     doc.setTextColor(100, 116, 139);
     doc.text(`Generated: ${new Date().toLocaleString()}  |  Total tracked evaluations: ${evaluations.length}`, 14, 25);
     
-    // Calculate aggregate metrics
     const totals = evaluations.map(e => calculateEntryCredits(e));
     const avg = totals.reduce((a, b) => a + b, 0) / totals.length;
     const maxVal = Math.max(...totals);
     const bestDate = evaluations[totals.indexOf(maxVal)].date;
     const streaks = getStreaks(evaluations);
     
-    // Add Stats box
     doc.setFillColor(241, 245, 249);
     doc.roundedRect(14, 30, pageWidth - 28, 10, 2, 2, 'F');
     doc.setFontSize(8.5);
     doc.setTextColor(51, 65, 85);
     doc.text(`Avg Credits: ${avg.toFixed(1)} / 25.0    |    Target Goal: ${appConfig.targetCredits} cr    |    Active Streak: ${streaks.current} days (Best: ${streaks.longest} days)    |    Best Score: ${maxVal.toFixed(1)} cr (${bestDate})`, 18, 36.5);
     
-    // Prepare table columns
     const dynamicHeaders = appConfig.frames.map(f => `${f.label}\nMax ${f.maxCredits}`);
     const tableHeaders = ['Date', 'Mood', ...dynamicHeaders, 'Total\nCredits', 'Journal Summary'];
     
@@ -1396,7 +1403,6 @@
       return [dateStr, moodTxt, ...frameScores, `${totalCr} cr`, summary];
     });
 
-    // Draw table
     doc.autoTable({
       head: [tableHeaders],
       body: tableRows,
@@ -1416,7 +1422,6 @@
       columnStyles: {
         0: { fontStyle: 'bold', width: 20 },
         1: { halign: 'center', width: 18 },
-        // Mid categories
         ...appConfig.frames.reduce((acc, f, i) => {
           acc[i + 2] = { halign: 'center' };
           return acc;
@@ -1430,7 +1435,6 @@
       theme: 'grid'
     });
     
-    // Add page numbers
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
@@ -1462,10 +1466,8 @@
     
     if (window.lucide) lucide.createIcons();
     
-    // Trigger animations
     setTimeout(() => toast.classList.add('show'), 50);
     
-    // Self-destruct
     setTimeout(() => {
       toast.classList.remove('show');
       setTimeout(() => toast.remove(), 300);
