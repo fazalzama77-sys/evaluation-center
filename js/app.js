@@ -29,6 +29,7 @@
     settingsTargetCredits: document.getElementById('settingsTargetCredits'),
     categoryConfigurator: document.getElementById('categoryConfigurator'),
     clearAllBtn: document.getElementById('clearAllBtn'),
+    clearClientCacheBtn: document.getElementById('clearClientCacheBtn'),
 
     importBtn: document.getElementById('importBtn'),
     importModal: document.getElementById('importModal'),
@@ -136,6 +137,9 @@
     el.closeSettings.addEventListener('click', () => el.settingsModal.classList.remove('active'));
     el.saveSettingsBtn.addEventListener('click', saveSettings);
     el.clearAllBtn.addEventListener('click', wipeAllData);
+    if (el.clearClientCacheBtn) {
+      el.clearClientCacheBtn.addEventListener('click', clearClientCache);
+    }
 
     el.importBtn.addEventListener('click', () => el.importModal.classList.add('active'));
     el.closeImport.addEventListener('click', () => el.importModal.classList.remove('active'));
@@ -1208,32 +1212,52 @@
   }
 
   async function wipeAllData() {
-    if (!confirm('🚨 WARNING: This will permanently delete ALL evaluations and data. This cannot be undone. Are you absolutely sure?')) {
+    if (!confirm('🚨 WARNING: This will permanently delete ALL evaluations, server backup histories, and configs. This cannot be undone. Are you absolutely sure?')) {
       return;
     }
 
     try {
       if (isServerOnline) {
-        await fetch('/api/import', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ evaluations: [] })
+        const res = await fetch('/api/reset', {
+          method: 'POST'
         });
+        if (!res.ok) throw new Error('Server reset endpoint failed');
       }
     } catch (e) {
-      console.error(e);
+      console.error('Server wipe failed:', e);
+      showToast('Wipe failed on server, resetting client only', 'danger');
     }
 
-    evaluations = [];
+    // Clear client
     localStorage.removeItem(LS_CONFIG_KEY);
     localStorage.removeItem(LS_EVALS_KEY);
     localStorage.removeItem(LS_DRAFT_KEY);
 
-    showToast('All user logs and configurations wiped.', 'danger');
+    showToast('Hard reset successful! App is restarting...', 'danger');
     el.settingsModal.classList.remove('active');
     
-    await loadInitialData();
-    loadEntryForDate(activeDate);
+    // Force reload
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  }
+
+  async function clearClientCache() {
+    if (!confirm('This will wipe all client cache stored in LocalStorage and perform a fresh resync from the server. Do you want to proceed?')) {
+      return;
+    }
+    
+    // Clear LocalStorage cache
+    localStorage.removeItem(LS_CONFIG_KEY);
+    localStorage.removeItem(LS_EVALS_KEY);
+    localStorage.removeItem(LS_DRAFT_KEY);
+    
+    showToast('Client cache cleared! Reloading...', 'warning');
+    
+    // Force a fresh window reload to reload state from server
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
   }
 
   // --- DATA PORTABILITY: EXPORT / IMPORT ---

@@ -269,11 +269,16 @@
         </div>
 
         <div class="settings-section danger-zone">
-          <h3>Danger Zone</h3>
-          <p>This will erase all evaluations and local application data.</p>
-          <button id="clearAllBtn" class="btn danger-btn">
-            <i data-lucide="trash-2"></i> Wipe All Data
-          </button>
+          <h3>Emergency Reset & Cache Control</h3>
+          <p class="settings-hint">If you experience any synchronization bugs or data corruption, use these options:</p>
+          <div class="danger-actions">
+            <button id="clearClientCacheBtn" class="btn secondary-btn" style="width: 100%; margin-bottom: 8px;">
+              <i data-lucide="refresh-cw"></i> Reset Client Cache (Resync)
+            </button>
+            <button id="clearAllBtn" class="btn danger-btn" style="width: 100%;">
+              <i data-lucide="trash-2"></i> Hard Reset (Wipe Client & Server)
+            </button>
+          </div>
         </div>
       </div>
       <div class="modal-footer">

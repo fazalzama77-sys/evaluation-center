@@ -264,6 +264,36 @@ app.post('/api/import', (req, res) => {
   }
 });
 
+// POST Reset Database and Configuration
+app.post('/api/reset', (req, res) => {
+  try {
+    createBackup(); // Create one final backup before wiping
+    
+    // Wipe evaluations
+    fs.writeFileSync(EVALUATIONS_FILE, JSON.stringify([], null, 2), 'utf-8');
+    
+    // Reset configurations to default
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(DEFAULT_CONFIG, null, 2), 'utf-8');
+    
+    // Delete all backups in backups/ directory
+    if (fs.existsSync(BACKUP_DIR)) {
+      const files = fs.readdirSync(BACKUP_DIR);
+      files.forEach(file => {
+        try {
+          fs.unlinkSync(path.join(BACKUP_DIR, file));
+        } catch (e) {
+          console.error('Error deleting backup file during reset:', file, e);
+        }
+      });
+    }
+
+    res.json({ success: true, message: 'All server evaluations, custom configurations, and backup histories have been wiped.' });
+  } catch (err) {
+    console.error('Reset database failed:', err);
+    res.status(500).json({ error: 'Failed to reset server data.' });
+  }
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`====================================================`);
