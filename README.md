@@ -1,12 +1,27 @@
-# AuraTrack Architecture & Development Context
+# AuraTrack - Premium Daily Self-Mirror & Discipline Tracker
 
-AuraTrack is a daily self-evaluation and habit-tracking dashboard designed for high-agency individuals. It uses a structured three-timeframe credit allocation model (maximum 25 credits per day) with customizable habits, daily checklists, mood ratings, and text reflections.
+AuraTrack is a daily self-evaluation and habit-tracking dashboard designed to act as an aesthetic, motivating **self-mirror**. It uses a structured three-timeframe credit allocation model (maximum 25 credits per day) with customizable habits, daily checklists, energy/vibe ratings, and text reflections.
+
+To prevent clutter, the homepage is hyper-focused on today's inputs and visual reflection, while historical logs, contribution grids, and analytics reside inside a collapsible drawer.
+
+---
+
+## 🔮 The Self-Mirror Status Engine
+
+Today's performance is dynamically mapped to a visual rating theme:
+
+| Credit Threshold | Level Status | Color Code | Motivational Mirror Feedback |
+| :--- | :--- | :--- | :--- |
+| **0.0 – 9.9 cr** | `FAILURE` | Crimson Red | *"A day without discipline is a step backward. Pick yourself up tomorrow."* |
+| **10.0 – 17.4 cr** | `MEDIOCRE` | Amber Gold | *"Average effort leads to average results. Break past your limits."* |
+| **17.5 – 21.9 cr** | `GOOD` | Cyan Blue | *"Consistency is building your empire. You are on the right path!"* |
+| **22.0 – 25.0 cr** | `ELITE FLOW` | Emerald Green | *"Operating in the top 1%. You are completely unstoppable today!"* |
 
 ---
 
 ## Technical Stack & Layout
 
-The project is structured as a full-stack JavaScript application:
+The project is structured as a full-stack Node.js + Express application:
 
 - **Backend**: Node.js & Express server.
 - **Frontend**: Single Page Application using modern, responsive vanilla HTML, CSS (Glassmorphism design, Light/Dark theme toggle), and Javascript.
@@ -19,20 +34,17 @@ The project is structured as a full-stack JavaScript application:
 ### File Directory
 
 ```
-d:\discipline-tracker\
-  ├── data\
-  │   ├── evaluations.json      # Saved daily logs (array of evaluations)
-  │   ├── config.json           # User configuration (daily target, timeframe configurations, habit items)
-  │   └── backups\              # Automatically rotated database backups (keeps last 15 saves)
-  ├── public\
-  │   ├── index.html            # Webpage core SPA interface
-  │   ├── css\
-  │   │   └── style.css         # Styling system (variables, custom sliders, animations, dark theme)
-  │   └── js\
-  │       └── app.js            # Client UI controllers, API client, charts rendering, and PDF layout
+aura-track/
+  ├── public/
+  │   ├── index.html            # Webpage core SPA interface (Self-Mirror centerpiece layout)
+  │   ├── css/
+  │   │   └── style.css         # Styling system (Self-mirror glows, progress circle, mobile bottom drawers)
+  │   └── js/
+  │       └── app.js            # Client UI controllers, self-mirror thresholds engine, and PDF layout
   ├── server.js                 # Express API router & local static file server
   ├── package.json              # Node project configuration and script run instructions
-  └── context.md                # System design & architecture guide (this file)
+  ├── .gitignore                # Excludes runtime dependencies, local logs, and OS files
+  └── README.md                 # System design & architecture guide (this file)
 ```
 
 ---
