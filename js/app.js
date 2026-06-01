@@ -8,6 +8,7 @@
   let activeDate = new Date().toISOString().slice(0, 10);
   let activeEntry = createEmptyEntry(activeDate);
   let isServerOnline = true;
+  let deferredInstallPrompt = null;
   
   // Chart instances
   let trendChartInstance = null;
@@ -21,6 +22,7 @@
   // --- DOM ELEMENTS ---
   const el = {
     syncStatus: document.getElementById('syncStatus'),
+    installAppBtn: document.getElementById('installAppBtn'),
     themeToggle: document.getElementById('themeToggle'),
     settingsBtn: document.getElementById('settingsBtn'),
     settingsModal: document.getElementById('settingsModal'),
@@ -79,6 +81,7 @@
     
     // Bind Event Listeners
     setupEventListeners();
+    registerServiceWorker();
     
     // Load config and evaluations
     await loadInitialData();
@@ -94,6 +97,25 @@
 
   // --- EVENT LISTENERS ---
   function setupEventListeners() {
+    // PWA install prompt
+    if (el.installAppBtn) {
+      el.installAppBtn.addEventListener('click', async () => {
+        if (!deferredInstallPrompt) {
+          showToast('Use your browser menu to add AuraTrack to the home screen', 'warning');
+          return;
+        }
+
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        el.installAppBtn.hidden = true;
+
+        if (outcome === 'accepted') {
+          showToast('AuraTrack install started', 'success');
+        }
+      });
+    }
+
     // Date Change
     el.evalDate.addEventListener('change', (e) => {
       saveDraft(); // Save draft for old date first
@@ -169,6 +191,32 @@
     el.journalNotes.addEventListener('input', (e) => {
       activeEntry.notes = e.target.value;
       saveDraft();
+    });
+  }
+
+  // --- PWA INSTALLATION ---
+  function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .catch((err) => console.warn('Service worker registration failed:', err));
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      if (el.installAppBtn) {
+        el.installAppBtn.hidden = false;
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      if (el.installAppBtn) {
+        el.installAppBtn.hidden = true;
+      }
+      showToast('AuraTrack installed successfully', 'success');
     });
   }
 

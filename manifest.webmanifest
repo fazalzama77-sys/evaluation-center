@@ -1,0 +1,37 @@
+{
+  "name": "AuraTrack - Daily Discipline Mirror",
+  "short_name": "AuraTrack",
+  "description": "Track habits, daily discipline credits, mood, streaks, and self-evaluation progress from your home screen.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#030407",
+  "theme_color": "#7c3aed",
+  "categories": ["productivity", "lifestyle", "health"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open today's check-in",
+      "short_name": "Today",
+      "description": "Jump directly into today's discipline tracker.",
+      "url": "/?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "/icons/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

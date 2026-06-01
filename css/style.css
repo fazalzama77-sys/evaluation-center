@@ -1517,3 +1517,48 @@ body::after {
   .reflection-level { font-size: 1.35rem; }
   .category-card { padding: 12px; }
 }
+
+/* PWA install affordance */
+.install-app-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border: 0;
+  color: #fff;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px var(--primary-glow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.install-app-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 12px 30px var(--secondary-glow);
+}
+
+.install-app-btn[hidden] {
+  display: none;
+}
+
+.install-app-btn i {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 600px) {
+  .install-app-btn {
+    width: 38px;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  .install-app-btn span {
+    display: none;
+  }
+}
