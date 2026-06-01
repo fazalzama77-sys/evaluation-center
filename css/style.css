@@ -1517,3 +1517,121 @@ body::after {
   .reflection-level { font-size: 1.35rem; }
   .category-card { padding: 12px; }
 }
+
+/* PWA install affordance */
+.install-app-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border: 0;
+  color: #fff;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px var(--primary-glow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.install-app-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 12px 30px var(--secondary-glow);
+}
+
+.install-app-btn[hidden] {
+  display: none;
+}
+
+.install-app-btn i {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 600px) {
+  .install-app-btn {
+    width: 38px;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  .install-app-btn span {
+    display: none;
+  }
+}
+
+/* Install prompt modal */
+.install-modal-card {
+  text-align: center;
+}
+
+.install-modal-body {
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+
+.install-hero-icon {
+  width: 74px;
+  height: 74px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 38px var(--primary-glow);
+}
+
+.install-hero-icon i {
+  width: 34px;
+  height: 34px;
+}
+
+.install-modal-body h3 {
+  font-family: var(--font-family-title);
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.install-steps-card {
+  width: 100%;
+  text-align: left;
+  background: var(--input-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.install-steps-card strong {
+  display: block;
+  color: var(--primary-light);
+  font-family: var(--font-family-title);
+  margin-bottom: 8px;
+}
+
+[data-theme="light"] .install-steps-card strong {
+  color: var(--primary);
+}
+
+.install-steps-card ol {
+  margin-left: 18px;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.install-steps-card li + li {
+  margin-top: 6px;
+}
+
+.install-modal-footer {
+  justify-content: stretch;
+}
+
+.install-modal-footer .btn {
+  flex: 1;
+}

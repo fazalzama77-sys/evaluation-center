@@ -2,7 +2,13 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="AuraTrack">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="application-name" content="AuraTrack">
   <title>AuraTrack // Premium Daily Self-Evaluation & Discipline Mirror</title>
   
   <!-- Fonts -->
@@ -10,6 +16,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+
   <!-- CSS -->
   <link rel="stylesheet" href="css/style.css">
   
@@ -39,6 +49,10 @@
           <span class="status-dot"></span>
           <span class="status-text">Connected</span>
         </span>
+        <button id="installAppBtn" class="install-app-btn" type="button">
+          <i data-lucide="download"></i>
+          <span>Install</span>
+        </button>
         <button id="themeToggle" class="icon-btn" title="Toggle Theme">
           <i data-lucide="sun" class="sun-icon"></i>
           <i data-lucide="moon" class="moon-icon"></i>
@@ -283,6 +297,34 @@
       </div>
       <div class="modal-footer">
         <button id="saveSettingsBtn" class="btn primary-btn">Save Configurations</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Install App Prompt -->
+  <div class="overlay-modal" id="installModal">
+    <div class="modal-card compact install-modal-card">
+      <div class="modal-header">
+        <h2><i data-lucide="smartphone"></i> Install AuraTrack</h2>
+        <button id="closeInstall" class="icon-btn" type="button"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body install-modal-body">
+        <div class="install-hero-icon">
+          <i data-lucide="zap"></i>
+        </div>
+        <h3>Use AuraTrack like a real app</h3>
+        <p class="settings-hint">Add AuraTrack to your home screen for faster launch, full-screen standalone mode, and offline app-shell access.</p>
+        <div class="install-steps-card">
+          <strong id="installInstructionsTitle">How to install</strong>
+          <ol id="installInstructionsList">
+            <li>Tap Install Now if your browser supports direct install.</li>
+            <li>Otherwise use your browser menu and choose Add to Home screen.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="modal-footer install-modal-footer">
+        <button id="installLaterBtn" class="btn secondary-btn" type="button">Not now</button>
+        <button id="installNowBtn" class="btn primary-btn" type="button"><i data-lucide="download"></i> Install Now</button>
       </div>
     </div>
   </div>
