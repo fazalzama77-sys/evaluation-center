@@ -11,7 +11,23 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Static app shell and PWA assets
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/icons', express.static(path.join(__dirname, 'icons')));
+app.get('/manifest.webmanifest', (req, res) => {
+  res.type('application/manifest+json');
+  res.sendFile(path.join(__dirname, 'manifest.webmanifest'));
+});
+app.get('/service-worker.js', (req, res) => {
+  res.type('application/javascript');
+  res.set('Service-Worker-Allowed', '/');
+  res.sendFile(path.join(__dirname, 'service-worker.js'));
+});
+app.get(['/', '/index.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Data directories & paths
 const DATA_DIR = path.join(__dirname, 'data');
