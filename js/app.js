@@ -383,9 +383,13 @@
         appConfig = {
           targetCredits: 20,
           frames: [
-            { id: 'pre', label: 'Pre-College', maxCredits: 8, habits: ['Wake up on time', 'Morning exercise', 'Healthy breakfast', 'Focus study session'] },
-            { id: 'college', label: 'College', maxCredits: 10, habits: ['Attend all classes', 'Take notes', 'Active participation', 'Library time'] },
-            { id: 'post', label: 'Post-College', maxCredits: 7, habits: ['Gym / Work-out', 'Code / Project work', 'Read book', 'Sleep routine'] }
+            { id: 'tahajjud_fajr', label: 'Tahajjud to Fajr', maxCredits: 2, habits: ['Wake for Tahajjud', 'Qiyam / night prayer', 'Dua and istighfar', 'Prepare for Fajr'] },
+            { id: 'fajr_pre_college', label: 'Fajr to Pre-College', maxCredits: 6, habits: ['Pray Fajr on time', 'Morning adhkar', 'Quran recitation', 'Productive morning routine'] },
+            { id: 'college_zuhr', label: 'College to Zuhr', maxCredits: 5, habits: ['Attend college commitments', 'Stay focused', 'Avoid distractions', 'Prepare for Zuhr'] },
+            { id: 'zuhr_asr', label: 'Zuhr to Asr', maxCredits: 3, habits: ['Pray Zuhr on time', 'Complete priority tasks', 'Mindful speech', 'Prepare for Asr'] },
+            { id: 'asr_maghrib', label: 'Asr to Maghrib', maxCredits: 3, habits: ['Pray Asr on time', 'Exercise / movement', 'Family or service time', 'Evening adhkar'] },
+            { id: 'maghrib_isha', label: 'Maghrib to Isha', maxCredits: 4, habits: ['Pray Maghrib on time', 'Quran or study circle', 'Healthy dinner', 'Prepare for Isha'] },
+            { id: 'isha_tahajjud', label: 'Isha to Tahajjud', maxCredits: 2, habits: ['Pray Isha on time', 'Night routine', 'Plan tomorrow', 'Sleep with intention'] }
           ]
         };
       }
