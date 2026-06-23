@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "lint": "node --check server.js && node --check js/app.js",
+    "test": "npm run lint"
   },
   "dependencies": {
     "cors": "^2.8.5",
