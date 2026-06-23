@@ -61,6 +61,7 @@ Stores the daily credit target goals and dynamic category configurations.
       "id": "tahajjud_fajr",
       "label": "Tahajjud to Fajr",
       "maxCredits": 2,
+      "maxCredits": 3,
       "habits": [
         "Wake for Tahajjud",
         "Qiyam / night prayer",
