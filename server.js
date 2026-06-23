@@ -47,13 +47,13 @@ if (!fs.existsSync(BACKUP_DIR)) {
 const DEFAULT_CONFIG = {
   targetCredits: 20,
   frames: [
-    { id: 'tahajjud_fajr', label: 'Tahajjud to Fajr', maxCredits: 3, habits: ['Wake for Tahajjud', 'Qiyam / night prayer', 'Dua and istighfar', 'Prepare for Fajr'] },
-    { id: 'fajr_pre_zohar', label: 'Fajr to Pre-Zohar', maxCredits: 4, habits: ['Pray Fajr on time', 'Morning adhkar', 'Quran recitation', 'Productive morning work'] },
-    { id: 'pre_zohar_zohar', label: 'Pre-Zohar to Zohar', maxCredits: 4, habits: ['Stay focused', 'Avoid distractions', 'Helpful conduct', 'Prepare for Zohar'] },
-    { id: 'zohar_asr', label: 'Zohar to Asr', maxCredits: 4, habits: ['Pray Zohar on time', 'Complete priority tasks', 'Mindful speech', 'Prepare for Asr'] },
-    { id: 'asr_maghrib', label: 'Asr to Maghrib', maxCredits: 4, habits: ['Pray Asr on time', 'Exercise / movement', 'Family or service time', 'Evening adhkar'] },
-    { id: 'maghrib_isha', label: 'Maghrib to Isha', maxCredits: 3, habits: ['Pray Maghrib on time', 'Quran or study circle', 'Healthy dinner', 'Prepare for Isha'] },
-    { id: 'isha_tahajjud', label: 'Isha to Tahajjud', maxCredits: 3, habits: ['Pray Isha on time', 'Night routine', 'Plan tomorrow', 'Sleep with intention'] }
+    { id: 'tahajjud_fajr', label: 'Tahajjud to Fajr', maxCredits: 2, habits: ['Wake for Tahajjud', 'Qiyam / night prayer', 'Dua and istighfar', 'Prepare for Fajr'] },
+    { id: 'fajr_pre_college', label: 'Fajr to Pre-College', maxCredits: 6, habits: ['Pray Fajr on time', 'Morning adhkar', 'Quran recitation', 'Productive morning routine'] },
+    { id: 'college_zuhr', label: 'College to Zuhr', maxCredits: 5, habits: ['Attend college commitments', 'Stay focused', 'Avoid distractions', 'Prepare for Zuhr'] },
+    { id: 'zuhr_asr', label: 'Zuhr to Asr', maxCredits: 3, habits: ['Pray Zuhr on time', 'Complete priority tasks', 'Mindful speech', 'Prepare for Asr'] },
+    { id: 'asr_maghrib', label: 'Asr to Maghrib', maxCredits: 3, habits: ['Pray Asr on time', 'Exercise / movement', 'Family or service time', 'Evening adhkar'] },
+    { id: 'maghrib_isha', label: 'Maghrib to Isha', maxCredits: 4, habits: ['Pray Maghrib on time', 'Quran or study circle', 'Healthy dinner', 'Prepare for Isha'] },
+    { id: 'isha_tahajjud', label: 'Isha to Tahajjud', maxCredits: 2, habits: ['Pray Isha on time', 'Night routine', 'Plan tomorrow', 'Sleep with intention'] }
   ]
 };
 

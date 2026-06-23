@@ -60,6 +60,7 @@ Stores the daily credit target goals and dynamic category configurations.
     {
       "id": "tahajjud_fajr",
       "label": "Tahajjud to Fajr",
+      "maxCredits": 2,
       "maxCredits": 3,
       "habits": [
         "Wake for Tahajjud",
@@ -68,9 +69,9 @@ Stores the daily credit target goals and dynamic category configurations.
       ]
     },
     {
-      "id": "fajr_pre_zohar",
-      "label": "Fajr to Pre-Zohar",
-      "maxCredits": 4,
+      "id": "fajr_pre_college",
+      "label": "Fajr to Pre-College",
+      "maxCredits": 6,
       "habits": [
         "Pray Fajr on time",
         "Morning adhkar",
@@ -90,18 +91,18 @@ Stores saved evaluations sorted descending by date.
     "date": "2026-05-28",
     "scores": {
       "tahajjud_fajr": 8.0,
-      "fajr_pre_zohar": 7.5,
-      "pre_zohar_zohar": 6.0,
-      "zohar_asr": 8.5,
+      "fajr_pre_college": 7.5,
+      "college_zuhr": 6.0,
+      "zuhr_asr": 8.5,
       "asr_maghrib": 7.0,
       "maghrib_isha": 8.0,
       "isha_tahajjud": 6.5
     },
     "habits": {
       "tahajjud_fajr": ["Wake for Tahajjud", "Dua and istighfar"],
-      "fajr_pre_zohar": ["Pray Fajr on time"],
-      "pre_zohar_zohar": [],
-      "zohar_asr": ["Pray Zohar on time"],
+      "fajr_pre_college": ["Pray Fajr on time"],
+      "college_zuhr": [],
+      "zuhr_asr": ["Pray Zuhr on time"],
       "asr_maghrib": [],
       "maghrib_isha": [],
       "isha_tahajjud": []
