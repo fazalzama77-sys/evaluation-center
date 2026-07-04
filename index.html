@@ -350,6 +350,37 @@
     </div>
   </div>
 
+  <!-- Professional PWA Install Prompt -->
+  <div class="pwa-install-backdrop" id="pwaInstallPrompt" hidden>
+    <section class="pwa-install-card" role="dialog" aria-modal="true" aria-labelledby="pwaInstallTitle" aria-describedby="pwaInstallDescription">
+      <button id="dismissInstallPrompt" class="pwa-install-close" type="button" aria-label="Dismiss install prompt">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="pwa-install-icon">
+        <i data-lucide="smartphone"></i>
+      </div>
+      <div class="pwa-install-copy">
+        <span class="pwa-install-kicker">Install AuraTrack</span>
+        <h2 id="pwaInstallTitle">Use AuraTrack like a native app</h2>
+        <p id="pwaInstallDescription">Launch faster, stay focused, and keep your discipline mirror available from your device with offline-ready PWA support.</p>
+      </div>
+      <div class="pwa-install-benefits" aria-label="Install benefits">
+        <span><i data-lucide="wifi-off"></i> Offline shell</span>
+        <span><i data-lucide="monitor-smartphone"></i> Standalone window</span>
+        <span><i data-lucide="zap"></i> Fast launch</span>
+      </div>
+      <div id="iosInstallHint" class="pwa-install-ios-hint" hidden>
+        On iPhone/iPad: tap <strong>Share</strong>, then choose <strong>Add to Home Screen</strong>.
+      </div>
+      <div class="pwa-install-actions">
+        <button id="installPromptPrimaryBtn" class="btn primary-btn" type="button">
+          <i data-lucide="download-cloud"></i> Install App
+        </button>
+        <button id="installPromptLaterBtn" class="btn secondary-btn" type="button">Maybe later</button>
+      </div>
+    </section>
+  </div>
+
   <!-- Toast Notification -->
   <div class="toast-notification" id="toastContainer"></div>
 

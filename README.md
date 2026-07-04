@@ -61,7 +61,6 @@ Stores the daily credit target goals and dynamic category configurations.
       "id": "tahajjud_fajr",
       "label": "Tahajjud to Fajr",
       "maxCredits": 2,
-      "maxCredits": 3,
       "habits": [
         "Wake for Tahajjud",
         "Qiyam / night prayer",
@@ -170,3 +169,10 @@ AuraTrack is designed to work even if the backend server is temporarily shut dow
 - The frontend client checks connection status and automatically switches to **Offline Mode** if the server endpoints are unreachable.
 - Offline data is saved to, loaded from, and merged in browser **LocalStorage**.
 - A status badge shows "Offline (Local)" in red when offline, and "Connected" in green when synced with the node backend database.
+
+## PWA Install Experience
+
+AuraTrack includes a modern Progressive Web App install flow:
+- The manifest and service worker make the app installable and offline-ready.
+- Supported browsers fire the native `beforeinstallprompt` event, and AuraTrack shows a polished in-app install prompt that opens the browser's real install dialog.
+- iOS/iPadOS browsers do not expose the same native install prompt, so AuraTrack displays a guided fallback explaining the Share → Add to Home Screen path.

@@ -9,6 +9,8 @@
   let activeEntry = createEmptyEntry(activeDate);
   let isServerOnline = true;
   let deferredInstallPrompt = null;
+  const INSTALL_PROMPT_DISMISS_MS = 7 * 24 * 60 * 60 * 1000;
+  let installPromptDismissed = isInstallPromptDismissed();
   
   // Chart instances
   let trendChartInstance = null;
@@ -24,12 +26,11 @@
   const el = {
     syncStatus: document.getElementById('syncStatus'),
     installAppBtn: document.getElementById('installAppBtn'),
-    installModal: document.getElementById('installModal'),
-    closeInstall: document.getElementById('closeInstall'),
-    installLaterBtn: document.getElementById('installLaterBtn'),
-    installNowBtn: document.getElementById('installNowBtn'),
-    installInstructionsTitle: document.getElementById('installInstructionsTitle'),
-    installInstructionsList: document.getElementById('installInstructionsList'),
+    pwaInstallPrompt: document.getElementById('pwaInstallPrompt'),
+    installPromptPrimaryBtn: document.getElementById('installPromptPrimaryBtn'),
+    installPromptLaterBtn: document.getElementById('installPromptLaterBtn'),
+    dismissInstallPrompt: document.getElementById('dismissInstallPrompt'),
+    iosInstallHint: document.getElementById('iosInstallHint'),
     themeToggle: document.getElementById('themeToggle'),
     settingsBtn: document.getElementById('settingsBtn'),
     settingsModal: document.getElementById('settingsModal'),
@@ -106,15 +107,26 @@
   function setupEventListeners() {
     // PWA install prompt
     if (el.installAppBtn) {
-      el.installAppBtn.addEventListener('click', () => openInstallModal(true));
+      el.installAppBtn.addEventListener('click', handleInstallClick);
     }
-    if (el.closeInstall) {
-      el.closeInstall.addEventListener('click', closeInstallModal);
+
+    if (el.installPromptPrimaryBtn) {
+      el.installPromptPrimaryBtn.addEventListener('click', handleInstallClick);
     }
-    if (el.installLaterBtn) {
-      el.installLaterBtn.addEventListener('click', () => {
-        localStorage.setItem(LS_INSTALL_DISMISSED_KEY, new Date().toISOString());
-        closeInstallModal();
+
+    if (el.installPromptLaterBtn) {
+      el.installPromptLaterBtn.addEventListener('click', dismissInstallPromptForSession);
+    }
+
+    if (el.dismissInstallPrompt) {
+      el.dismissInstallPrompt.addEventListener('click', dismissInstallPromptForSession);
+    }
+
+    if (el.pwaInstallPrompt) {
+      el.pwaInstallPrompt.addEventListener('click', (event) => {
+        if (event.target === el.pwaInstallPrompt) {
+          dismissInstallPromptForSession();
+        }
       });
     }
     if (el.installNowBtn) {
@@ -208,11 +220,13 @@
       });
     }
 
-    window.addEventListener('load', () => {
-      if (!isRunningStandalone() && !localStorage.getItem(LS_INSTALL_DISMISSED_KEY)) {
-        window.setTimeout(() => openInstallModal(false), 900);
-      }
-    });
+    if (isIosStandaloneUnsupported()) {
+      window.addEventListener('load', () => {
+        if (!installPromptDismissed && !isStandaloneDisplay()) {
+          revealInstallPrompt({ iosFallback: true });
+        }
+      });
+    }
 
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
@@ -222,131 +236,84 @@
       if (!localStorage.getItem(LS_INSTALL_DISMISSED_KEY)) {
         openInstallModal(false);
       }
+      if (!installPromptDismissed) {
+        revealInstallPrompt();
+      }
     });
 
     window.addEventListener('appinstalled', () => {
       deferredInstallPrompt = null;
-      localStorage.setItem(LS_INSTALL_DISMISSED_KEY, new Date().toISOString());
-      closeInstallModal();
+      installPromptDismissed = true;
+      localStorage.setItem('auraTrack_installPromptDismissedAt', Date.now().toString());
+      hideInstallPrompt();
+      if (el.installAppBtn) {
+        el.installAppBtn.hidden = true;
+      }
       showToast('AuraTrack installed successfully', 'success');
     });
   }
 
-  function openInstallModal(isManualOpen = false) {
-    if (!el.installModal) return;
-
-    if (isRunningStandalone()) {
-      showToast('AuraTrack is already installed', 'success');
+  async function handleInstallClick() {
+    if (!deferredInstallPrompt) {
+      revealInstallPrompt({ iosFallback: isIosStandaloneUnsupported() });
+      showToast('If no install prompt appears, use your browser install menu', 'warning');
       return;
     }
 
-    if (isManualOpen) {
-      localStorage.removeItem(LS_INSTALL_DISMISSED_KEY);
+    hideInstallPrompt();
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    if (el.installAppBtn) {
+      el.installAppBtn.hidden = true;
     }
 
-    updateInstallInstructions();
-    el.installModal.classList.add('active');
-    if (window.lucide) lucide.createIcons();
-  }
-
-  function closeInstallModal() {
-    if (el.installModal) {
-      el.installModal.classList.remove('active');
+    if (outcome === 'accepted') {
+      installPromptDismissed = true;
+      localStorage.setItem('auraTrack_installPromptDismissedAt', Date.now().toString());
+      showToast('AuraTrack install started', 'success');
     }
   }
 
-  async function handleInstallNow() {
-    if (deferredInstallPrompt) {
-      deferredInstallPrompt.prompt();
-      const { outcome } = await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-
-      if (outcome === 'accepted') {
-        localStorage.setItem(LS_INSTALL_DISMISSED_KEY, new Date().toISOString());
-        closeInstallModal();
-        showToast('AuraTrack install started', 'success');
-      } else {
-        showToast('Install cancelled. You can install later from this popup.', 'warning');
-      }
-      return;
+  function revealInstallPrompt(options = {}) {
+    if (!el.pwaInstallPrompt || isStandaloneDisplay()) return;
+    el.pwaInstallPrompt.hidden = false;
+    el.pwaInstallPrompt.classList.add('show');
+    if (el.iosInstallHint) {
+      el.iosInstallHint.hidden = !options.iosFallback;
     }
-
-    updateInstallInstructions();
-    showToast('Follow the steps in the popup to add AuraTrack to your home screen', 'warning');
+    if (window.lucide) {
+      lucide.createIcons();
+    }
   }
 
-  function updateInstallInstructions() {
-    if (!el.installInstructionsTitle || !el.installInstructionsList || !el.installNowBtn) return;
-
-    const platform = detectInstallPlatform();
-    const hasNativePrompt = Boolean(deferredInstallPrompt);
-    const instructions = getInstallInstructions(platform, hasNativePrompt);
-
-    el.installInstructionsTitle.textContent = instructions.title;
-    el.installInstructionsList.innerHTML = instructions.steps
-      .map(step => `<li>${escapeHTML(step)}</li>`)
-      .join('');
-    el.installNowBtn.innerHTML = hasNativePrompt
-      ? '<i data-lucide="download"></i> Install Now'
-      : '<i data-lucide="list-checks"></i> Show Steps';
-
-    if (window.lucide) lucide.createIcons();
+  function hideInstallPrompt() {
+    if (!el.pwaInstallPrompt) return;
+    el.pwaInstallPrompt.classList.remove('show');
+    setTimeout(() => {
+      el.pwaInstallPrompt.hidden = true;
+    }, 220);
   }
 
-  function getInstallInstructions(platform, hasNativePrompt) {
-    if (hasNativePrompt) {
-      return {
-        title: 'One-tap install is ready',
-        steps: [
-          'Tap Install Now below.',
-          'Confirm the browser install prompt.',
-          'Open AuraTrack from your home screen or app drawer.'
-        ]
-      };
-    }
-
-    if (platform === 'ios') {
-      return {
-        title: 'Install on iPhone or iPad',
-        steps: [
-          'Open this page in Safari.',
-          'Tap the Share button.',
-          'Choose Add to Home Screen, then tap Add.'
-        ]
-      };
-    }
-
-    if (platform === 'android') {
-      return {
-        title: 'Install on Android',
-        steps: [
-          'Tap your browser menu button.',
-          'Choose Install app or Add to Home screen.',
-          'Confirm, then launch AuraTrack from your home screen.'
-        ]
-      };
-    }
-
-    return {
-      title: 'Install on desktop',
-      steps: [
-        'Look for the install icon in the address bar.',
-        'Or open the browser menu and choose Install AuraTrack.',
-        'Confirm the install to launch AuraTrack like an app.'
-      ]
-    };
+  function dismissInstallPromptForSession() {
+    installPromptDismissed = true;
+    localStorage.setItem('auraTrack_installPromptDismissedAt', Date.now().toString());
+    hideInstallPrompt();
   }
 
-  function detectInstallPlatform() {
-    const ua = navigator.userAgent || '';
-    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    if (isIOS) return 'ios';
-    if (/Android/i.test(ua)) return 'android';
-    return 'desktop';
+  function isInstallPromptDismissed() {
+    const dismissedAt = Number(localStorage.getItem('auraTrack_installPromptDismissedAt') || 0);
+    return dismissedAt > 0 && Date.now() - dismissedAt < INSTALL_PROMPT_DISMISS_MS;
   }
 
-  function isRunningStandalone() {
+  function isStandaloneDisplay() {
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+
+  function isIosStandaloneUnsupported() {
+    const ua = window.navigator.userAgent.toLowerCase();
+    const isIos = /iphone|ipad|ipod/.test(ua);
+    return isIos && !isStandaloneDisplay();
   }
 
   // --- API SYNC AND LOCAL BACKUPS ---
