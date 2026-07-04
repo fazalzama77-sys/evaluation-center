@@ -20,6 +20,7 @@
   const LS_CONFIG_KEY = 'auraTrack_config';
   const LS_EVALS_KEY = 'auraTrack_evaluations';
   const LS_DRAFT_KEY = 'auraTrack_draft';
+  const LS_INSTALL_DISMISSED_KEY = 'auraTrack_installPromptDismissed';
 
   // --- DOM ELEMENTS ---
   const el = {
@@ -128,6 +129,9 @@
         }
       });
     }
+    if (el.installNowBtn) {
+      el.installNowBtn.addEventListener('click', handleInstallNow);
+    }
 
     // Date Change
     el.evalDate.addEventListener('change', (e) => {
@@ -227,8 +231,10 @@
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       deferredInstallPrompt = event;
-      if (el.installAppBtn) {
-        el.installAppBtn.hidden = false;
+      updateInstallInstructions();
+
+      if (!localStorage.getItem(LS_INSTALL_DISMISSED_KEY)) {
+        openInstallModal(false);
       }
       if (!installPromptDismissed) {
         revealInstallPrompt();

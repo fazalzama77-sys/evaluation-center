@@ -49,7 +49,7 @@
           <span class="status-dot"></span>
           <span class="status-text">Connected</span>
         </span>
-        <button id="installAppBtn" class="install-app-btn" type="button" hidden>
+        <button id="installAppBtn" class="install-app-btn" type="button">
           <i data-lucide="download"></i>
           <span>Install</span>
         </button>
@@ -297,6 +297,34 @@
       </div>
       <div class="modal-footer">
         <button id="saveSettingsBtn" class="btn primary-btn">Save Configurations</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Install App Prompt -->
+  <div class="overlay-modal" id="installModal">
+    <div class="modal-card compact install-modal-card">
+      <div class="modal-header">
+        <h2><i data-lucide="smartphone"></i> Install AuraTrack</h2>
+        <button id="closeInstall" class="icon-btn" type="button"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body install-modal-body">
+        <div class="install-hero-icon">
+          <i data-lucide="zap"></i>
+        </div>
+        <h3>Use AuraTrack like a real app</h3>
+        <p class="settings-hint">Add AuraTrack to your home screen for faster launch, full-screen standalone mode, and offline app-shell access.</p>
+        <div class="install-steps-card">
+          <strong id="installInstructionsTitle">How to install</strong>
+          <ol id="installInstructionsList">
+            <li>Tap Install Now if your browser supports direct install.</li>
+            <li>Otherwise use your browser menu and choose Add to Home screen.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="modal-footer install-modal-footer">
+        <button id="installLaterBtn" class="btn secondary-btn" type="button">Not now</button>
+        <button id="installNowBtn" class="btn primary-btn" type="button"><i data-lucide="download"></i> Install Now</button>
       </div>
     </div>
   </div>
