@@ -1,6 +1,6 @@
 # AuraTrack - Premium Daily Self-Mirror & Discipline Tracker
 
-AuraTrack is a daily self-evaluation and habit-tracking dashboard designed to act as an aesthetic, motivating **self-mirror**. It uses a structured three-timeframe credit allocation model (maximum 25 credits per day) with customizable habits, daily checklists, energy/vibe ratings, and text reflections.
+AuraTrack is a daily self-evaluation and habit-tracking dashboard designed to act as an aesthetic, motivating **self-mirror**. It uses a structured Islamically aligned prayer-timeframe credit allocation model (maximum 25 credits per day) with customizable habits, daily checklists, energy/vibe ratings, and text reflections.
 
 To prevent clutter, the homepage is hyper-focused on today's inputs and visual reflection, while historical logs, contribution grids, and analytics reside inside a collapsible drawer.
 
@@ -58,13 +58,23 @@ Stores the daily credit target goals and dynamic category configurations.
   "targetCredits": 20,
   "frames": [
     {
-      "id": "pre",
-      "label": "Pre-College",
-      "maxCredits": 8,
+      "id": "tahajjud_fajr",
+      "label": "Tahajjud to Fajr",
+      "maxCredits": 2,
       "habits": [
-        "Wake up on time",
-        "Morning exercise",
-        "Healthy breakfast"
+        "Wake for Tahajjud",
+        "Qiyam / night prayer",
+        "Dua and istighfar"
+      ]
+    },
+    {
+      "id": "fajr_pre_college",
+      "label": "Fajr to Pre-College",
+      "maxCredits": 6,
+      "habits": [
+        "Pray Fajr on time",
+        "Morning adhkar",
+        "Quran recitation"
       ]
     },
     ...
@@ -79,17 +89,25 @@ Stores saved evaluations sorted descending by date.
   {
     "date": "2026-05-28",
     "scores": {
-      "pre": 8.0,
-      "college": 7.5,
-      "post": 6.0
+      "tahajjud_fajr": 8.0,
+      "fajr_pre_college": 7.5,
+      "college_zuhr": 6.0,
+      "zuhr_asr": 8.5,
+      "asr_maghrib": 7.0,
+      "maghrib_isha": 8.0,
+      "isha_tahajjud": 6.5
     },
     "habits": {
-      "pre": ["Wake up on time", "Morning exercise"],
-      "college": ["Attend all classes"],
-      "post": []
+      "tahajjud_fajr": ["Wake for Tahajjud", "Dua and istighfar"],
+      "fajr_pre_college": ["Pray Fajr on time"],
+      "college_zuhr": [],
+      "zuhr_asr": ["Pray Zuhr on time"],
+      "asr_maghrib": [],
+      "maghrib_isha": [],
+      "isha_tahajjud": []
     },
     "mood": 4,
-    "notes": "Finished morning workout and studied for midterm."
+    "notes": "Protected the prayer windows and completed focused worship/work blocks."
   }
 ]
 ```
@@ -151,3 +169,10 @@ AuraTrack is designed to work even if the backend server is temporarily shut dow
 - The frontend client checks connection status and automatically switches to **Offline Mode** if the server endpoints are unreachable.
 - Offline data is saved to, loaded from, and merged in browser **LocalStorage**.
 - A status badge shows "Offline (Local)" in red when offline, and "Connected" in green when synced with the node backend database.
+
+## PWA Install Experience
+
+AuraTrack includes a modern Progressive Web App install flow:
+- The manifest and service worker make the app installable and offline-ready.
+- Supported browsers fire the native `beforeinstallprompt` event, and AuraTrack shows a polished in-app install prompt that opens the browser's real install dialog.
+- iOS/iPadOS browsers do not expose the same native install prompt, so AuraTrack displays a guided fallback explaining the Share → Add to Home Screen path.

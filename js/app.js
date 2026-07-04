@@ -9,6 +9,8 @@
   let activeEntry = createEmptyEntry(activeDate);
   let isServerOnline = true;
   let deferredInstallPrompt = null;
+  const INSTALL_PROMPT_DISMISS_MS = 7 * 24 * 60 * 60 * 1000;
+  let installPromptDismissed = isInstallPromptDismissed();
   
   // Chart instances
   let trendChartInstance = null;
@@ -23,6 +25,11 @@
   const el = {
     syncStatus: document.getElementById('syncStatus'),
     installAppBtn: document.getElementById('installAppBtn'),
+    pwaInstallPrompt: document.getElementById('pwaInstallPrompt'),
+    installPromptPrimaryBtn: document.getElementById('installPromptPrimaryBtn'),
+    installPromptLaterBtn: document.getElementById('installPromptLaterBtn'),
+    dismissInstallPrompt: document.getElementById('dismissInstallPrompt'),
+    iosInstallHint: document.getElementById('iosInstallHint'),
     themeToggle: document.getElementById('themeToggle'),
     settingsBtn: document.getElementById('settingsBtn'),
     settingsModal: document.getElementById('settingsModal'),
@@ -99,19 +106,25 @@
   function setupEventListeners() {
     // PWA install prompt
     if (el.installAppBtn) {
-      el.installAppBtn.addEventListener('click', async () => {
-        if (!deferredInstallPrompt) {
-          showToast('Use your browser menu to add AuraTrack to the home screen', 'warning');
-          return;
-        }
+      el.installAppBtn.addEventListener('click', handleInstallClick);
+    }
 
-        deferredInstallPrompt.prompt();
-        const { outcome } = await deferredInstallPrompt.userChoice;
-        deferredInstallPrompt = null;
-        el.installAppBtn.hidden = true;
+    if (el.installPromptPrimaryBtn) {
+      el.installPromptPrimaryBtn.addEventListener('click', handleInstallClick);
+    }
 
-        if (outcome === 'accepted') {
-          showToast('AuraTrack install started', 'success');
+    if (el.installPromptLaterBtn) {
+      el.installPromptLaterBtn.addEventListener('click', dismissInstallPromptForSession);
+    }
+
+    if (el.dismissInstallPrompt) {
+      el.dismissInstallPrompt.addEventListener('click', dismissInstallPromptForSession);
+    }
+
+    if (el.pwaInstallPrompt) {
+      el.pwaInstallPrompt.addEventListener('click', (event) => {
+        if (event.target === el.pwaInstallPrompt) {
+          dismissInstallPromptForSession();
         }
       });
     }
@@ -203,21 +216,98 @@
       });
     }
 
+    if (isIosStandaloneUnsupported()) {
+      window.addEventListener('load', () => {
+        if (!installPromptDismissed && !isStandaloneDisplay()) {
+          revealInstallPrompt({ iosFallback: true });
+        }
+      });
+    }
+
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       deferredInstallPrompt = event;
       if (el.installAppBtn) {
         el.installAppBtn.hidden = false;
       }
+      if (!installPromptDismissed) {
+        revealInstallPrompt();
+      }
     });
 
     window.addEventListener('appinstalled', () => {
       deferredInstallPrompt = null;
+      installPromptDismissed = true;
+      localStorage.setItem('auraTrack_installPromptDismissedAt', Date.now().toString());
+      hideInstallPrompt();
       if (el.installAppBtn) {
         el.installAppBtn.hidden = true;
       }
       showToast('AuraTrack installed successfully', 'success');
     });
+  }
+
+  async function handleInstallClick() {
+    if (!deferredInstallPrompt) {
+      revealInstallPrompt({ iosFallback: isIosStandaloneUnsupported() });
+      showToast('If no install prompt appears, use your browser install menu', 'warning');
+      return;
+    }
+
+    hideInstallPrompt();
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    if (el.installAppBtn) {
+      el.installAppBtn.hidden = true;
+    }
+
+    if (outcome === 'accepted') {
+      installPromptDismissed = true;
+      localStorage.setItem('auraTrack_installPromptDismissedAt', Date.now().toString());
+      showToast('AuraTrack install started', 'success');
+    }
+  }
+
+  function revealInstallPrompt(options = {}) {
+    if (!el.pwaInstallPrompt || isStandaloneDisplay()) return;
+    el.pwaInstallPrompt.hidden = false;
+    el.pwaInstallPrompt.classList.add('show');
+    if (el.iosInstallHint) {
+      el.iosInstallHint.hidden = !options.iosFallback;
+    }
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  }
+
+  function hideInstallPrompt() {
+    if (!el.pwaInstallPrompt) return;
+    el.pwaInstallPrompt.classList.remove('show');
+    setTimeout(() => {
+      el.pwaInstallPrompt.hidden = true;
+    }, 220);
+  }
+
+  function dismissInstallPromptForSession() {
+    installPromptDismissed = true;
+    localStorage.setItem('auraTrack_installPromptDismissedAt', Date.now().toString());
+    hideInstallPrompt();
+  }
+
+  function isInstallPromptDismissed() {
+    const dismissedAt = Number(localStorage.getItem('auraTrack_installPromptDismissedAt') || 0);
+    return dismissedAt > 0 && Date.now() - dismissedAt < INSTALL_PROMPT_DISMISS_MS;
+  }
+
+  function isStandaloneDisplay() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+
+  function isIosStandaloneUnsupported() {
+    const ua = window.navigator.userAgent.toLowerCase();
+    const isIos = /iphone|ipad|ipod/.test(ua);
+    return isIos && !isStandaloneDisplay();
   }
 
   // --- API SYNC AND LOCAL BACKUPS ---
@@ -254,9 +344,13 @@
         appConfig = {
           targetCredits: 20,
           frames: [
-            { id: 'pre', label: 'Pre-College', maxCredits: 8, habits: ['Wake up on time', 'Morning exercise', 'Healthy breakfast', 'Focus study session'] },
-            { id: 'college', label: 'College', maxCredits: 10, habits: ['Attend all classes', 'Take notes', 'Active participation', 'Library time'] },
-            { id: 'post', label: 'Post-College', maxCredits: 7, habits: ['Gym / Work-out', 'Code / Project work', 'Read book', 'Sleep routine'] }
+            { id: 'tahajjud_fajr', label: 'Tahajjud to Fajr', maxCredits: 2, habits: ['Wake for Tahajjud', 'Qiyam / night prayer', 'Dua and istighfar', 'Prepare for Fajr'] },
+            { id: 'fajr_pre_college', label: 'Fajr to Pre-College', maxCredits: 6, habits: ['Pray Fajr on time', 'Morning adhkar', 'Quran recitation', 'Productive morning routine'] },
+            { id: 'college_zuhr', label: 'College to Zuhr', maxCredits: 5, habits: ['Attend college commitments', 'Stay focused', 'Avoid distractions', 'Prepare for Zuhr'] },
+            { id: 'zuhr_asr', label: 'Zuhr to Asr', maxCredits: 3, habits: ['Pray Zuhr on time', 'Complete priority tasks', 'Mindful speech', 'Prepare for Asr'] },
+            { id: 'asr_maghrib', label: 'Asr to Maghrib', maxCredits: 3, habits: ['Pray Asr on time', 'Exercise / movement', 'Family or service time', 'Evening adhkar'] },
+            { id: 'maghrib_isha', label: 'Maghrib to Isha', maxCredits: 4, habits: ['Pray Maghrib on time', 'Quran or study circle', 'Healthy dinner', 'Prepare for Isha'] },
+            { id: 'isha_tahajjud', label: 'Isha to Tahajjud', maxCredits: 2, habits: ['Pray Isha on time', 'Night routine', 'Plan tomorrow', 'Sleep with intention'] }
           ]
         };
       }
